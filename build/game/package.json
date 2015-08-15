@@ -1,0 +1,6 @@
+{
+  "name": "arms-race",
+  "main": "pong-srv.js",
+  "author": "Christopher Hall <Biomech.ArkahnX@gmail.com>",
+  "license": "AGPLv3"
+}
