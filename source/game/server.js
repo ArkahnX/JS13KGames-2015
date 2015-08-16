@@ -2,8 +2,9 @@ var io = require('sandbox-io');
 if (!load("userID")) {
 	save("userID", 0);
 }
+var gamesize = 25;
 var userID = load("userID");
-var tilePriorities = [94, 3, 1, 1, 1]; // ground, obstacle, crystal, stream, scrap
+var tilePriorities = [0.94*gamesize*gamesize, 0.03*gamesize*gamesize, 0.01*gamesize*gamesize, 0.01*gamesize*gamesize, 0.01*gamesize*gamesize]; // ground, obstacle, crystal, stream, scrap
 var tileFunctions = [function(map, x, y) {
 	map[x][y] = 0;
 	return map;
@@ -12,7 +13,6 @@ var tileFunctions = [function(map, x, y) {
 	return map;
 },
 crystal, stream, scrap];
-var gamesize = 50;
 
 function send(target, name, data) {
 	target.emit(name, JSON.stringify(data));
@@ -56,7 +56,9 @@ function crystal(map, x, y) {
 	for (var i = 0; i < crystalWidth; i++) {
 		map[x + i] = map[x + i] || [];
 		for (var e = 0; e < crystalHeight; e++) {
-			map[x + i][y + e] = getWeightedRandom([3, 0, 7, 0, 0]);
+			if (x - i > -1 && y - e > -1) {
+				map[x - i][y - e] = getWeightedRandom([3, 0, 7, 0, 0]);
+			}
 		}
 	}
 	return map;
@@ -73,7 +75,9 @@ function scrap(map, x, y) {
 	for (var i = 0; i < crystalWidth; i++) {
 		map[x + i] = map[x + i] || [];
 		for (var e = 0; e < crystalHeight; e++) {
-			map[x + i][y + e] = getWeightedRandom([4, 0, 0, 0, 6]);
+			if (x - i > -1 && y - e > -1) {
+				map[x - i][y - e] = getWeightedRandom([4, 0, 0, 0, 6]);
+			}
 		}
 	}
 	return map;
@@ -104,22 +108,23 @@ io.on('connection', function(socket) {
 				var user = load(data[0]);
 				var map = user.map;
 				if (map.length > 0) {
-					return send(socket, map);
+					return send(socket, "m", map);
 				}
 				for (var x = 0; x < gamesize; x++) {
 					map[x] = map[x] || [];
 					for (var y = 0; y < gamesize; y++) {
 						// if (map[x][y] === undefined) {
-							var priorities = tilePriorities;
-							if (x === 0 || y === 0 || x === gamesize - 1 || y === gamesize - 1) {
-								priorities = [89, 7, 1, 1, 1];
-							}
-							var tile = getWeightedRandom(priorities);
-							map = tileFunctions[tile](map, x, y);
+						var priorities = tilePriorities;
+						if (x === 0 || y === 0 || x === gamesize - 1 || y === gamesize - 1) {
+							priorities = [tilePriorities[0], 0.07*gamesize*gamesize, tilePriorities[2], tilePriorities[3], tilePriorities[4]];
+						}
+						var tile = getWeightedRandom(priorities);
+						map = tileFunctions[tile](map, x, y);
 						// }
 					}
 				}
-				send(socket, "m", map)
+				save(data[0], user);
+				send(socket, "m", map);
 			}
 		}
 	});
