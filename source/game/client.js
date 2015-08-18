@@ -113,8 +113,8 @@ function modulus(num, size) {
 function moveHandler(event) {
 	mousex = event.pageX - canvas.offsetLeft;
 	mousey = event.pageY - canvas.offsetTop;
-	mousex = modulus(mousex, tilesize);
-	mousey = modulus(mousey, tilesize);
+	mousex = modulus(mousex, tilesize * (canvas.clientHeight/800));
+	mousey = modulus(mousey, tilesize * (canvas.clientHeight/800));
 }
 
 function clickHandler(event) {
