@@ -4,7 +4,7 @@ if (!load("userID")) {
 }
 var gamesize = 25;
 var userID = load("userID");
-var tilePriorities = [0.94*gamesize*gamesize, 0.03*gamesize*gamesize, 0.01*gamesize*gamesize, 0.01*gamesize*gamesize, 0.01*gamesize*gamesize]; // ground, obstacle, crystal, stream, scrap
+var tilePriorities = [0.94 * gamesize * gamesize, 0.03 * gamesize * gamesize, 0.01 * gamesize * gamesize, 0.00 * gamesize * gamesize, 0.02 * gamesize * gamesize]; // ground, obstacle, crystal, stream, scrap
 var tileFunctions = [function(map, x, y) {
 	map[x][y] = 0;
 	return map;
@@ -57,7 +57,13 @@ function crystal(map, x, y) {
 		map[x + i] = map[x + i] || [];
 		for (var e = 0; e < crystalHeight; e++) {
 			if (x - i > -1 && y - e > -1) {
-				map[x - i][y - e] = getWeightedRandom([3, 0, 7, 0, 0]);
+				var tile = getWeightedRandom([3, 0, 7, 0, 0]);
+				if (tile !== 0) {
+					map[x - i][y - e] = tile;
+				}
+				if (!map[x - i][y - e]) {
+					map[x - i][y - e] = 0;
+				}
 			}
 		}
 	}
@@ -76,7 +82,13 @@ function scrap(map, x, y) {
 		map[x + i] = map[x + i] || [];
 		for (var e = 0; e < crystalHeight; e++) {
 			if (x - i > -1 && y - e > -1) {
-				map[x - i][y - e] = getWeightedRandom([4, 0, 0, 0, 6]);
+				var tile = getWeightedRandom([4, 0, 0, 0, 6]);
+				if (tile !== 0) {
+					map[x - i][y - e] = tile;
+				}
+				if (!map[x - i][y - e]) {
+					map[x - i][y - e] = 0;
+				}
 			}
 		}
 	}
@@ -116,7 +128,7 @@ io.on('connection', function(socket) {
 						// if (map[x][y] === undefined) {
 						var priorities = tilePriorities;
 						if (x === 0 || y === 0 || x === gamesize - 1 || y === gamesize - 1) {
-							priorities = [tilePriorities[0], 0.07*gamesize*gamesize, tilePriorities[2], tilePriorities[3], tilePriorities[4]];
+							priorities = [tilePriorities[0], 0.07 * gamesize * gamesize, tilePriorities[2], tilePriorities[3], tilePriorities[4]];
 						}
 						var tile = getWeightedRandom(priorities);
 						map = tileFunctions[tile](map, x, y);
