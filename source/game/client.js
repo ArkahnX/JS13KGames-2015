@@ -6,6 +6,42 @@ var tilesize = 32;
 var mousex = 0;
 var mousey = 0;
 var strokeColor = "black";
+var buildingCosts = [];
+// power, crystal, scrap
+buildingCosts[0] = [999, 999, 999]; // starbase
+buildingCosts[1] = [0, 0, 1]; // pipe
+buildingCosts[2] = [1, 1, 2]; // power facility
+buildingCosts[3] = [2, 2, 2]; // human facility
+buildingCosts[4] = [2, 2, 2]; // scrap facility
+buildingCosts[5] = [2, 2, 2]; // crystal facility
+buildingCosts[6] = [2, 2, 2]; // storage facility
+var buildingCaps = [];
+// power, crystal, scrap, human
+buildingCaps[0] = [10, 10, 10, 10]; // starbase
+buildingCaps[1] = [0, 0, 0, 0]; // pipe
+buildingCaps[2] = [5, 0, 0, 0]; // power facility
+buildingCaps[3] = [0, 0, 0, 5]; // human facility
+buildingCaps[4] = [0, 0, 5, 0]; // scrap facility
+buildingCaps[5] = [0, 5, 0, 0]; // crystal facility
+buildingCaps[6] = [0, 5, 0, 0]; // storage facility
+var buildingSupplies = []; // resources per second
+// power, crystal, scrap, human
+buildingSupplies[0] = [0, 0, 0, 0]; // starbase
+buildingSupplies[1] = [0, 0, 0, 0]; // pipe
+buildingSupplies[2] = [1, 0, 0, 0]; // power facility
+buildingSupplies[3] = [0, 0, 0, 1]; // human facility
+buildingSupplies[4] = [0, 0, 1, 0]; // scrap facility
+buildingSupplies[5] = [0, 1, 0, 0]; // crystal facility
+buildingSupplies[6] = [5, 5, 5, 5]; // storage facility
+var buildingSizes = [];
+// X,Y
+buildingCosts[0] = [3,3]; // starbase
+buildingCosts[1] = [1,1]; // pipe
+buildingCosts[2] = [2,2]; // power facility
+buildingCosts[3] = [2,2]; // human facility
+buildingCosts[4] = [2,2]; // scrap facility
+buildingCosts[5] = [2,2]; // crystal facility
+buildingCosts[6] = [2,2]; // storage facility
 
 
 //login
@@ -22,8 +58,11 @@ socket.on("l", function(data) {
 	localStorage["loginID"] = data.login;
 	localStorage["map"] = JSON.stringify(data.map);
 	localStorage["people"] = data.people;
+	localStorage["power"] = data.power;
 	localStorage["energy"] = data.energy;
 	localStorage["scrap"] = data.scrap;
+	localStorage["buildings"] = data.buildings;
+	localStorage["units"] = data.units;
 	socket.emit(socketRequest, [localStorage["loginID"], "m"])
 })
 
@@ -40,6 +79,7 @@ function gamestart() {
 	addEvent(canvas, "mousemove", moveHandler);
 	addEvent(canvas, "mousedown", clickHandler);
 	addEvent(canvas, "contextmenu", doNothing);
+	addEvent(document.getElementById("cons"), "click", sideMenuClick);
 	gameLoop();
 }
 
@@ -113,8 +153,8 @@ function modulus(num, size) {
 function moveHandler(event) {
 	mousex = event.pageX - canvas.offsetLeft;
 	mousey = event.pageY - canvas.offsetTop;
-	mousex = modulus(mousex, tilesize * (canvas.clientHeight/800));
-	mousey = modulus(mousey, tilesize * (canvas.clientHeight/800));
+	mousex = modulus(mousex, tilesize * (canvas.clientHeight / 800));
+	mousey = modulus(mousey, tilesize * (canvas.clientHeight / 800));
 }
 
 function clickHandler(event) {
@@ -152,6 +192,14 @@ function clickHandler(event) {
 	// }
 }
 
+function sideMenuClick(event) {
+	doNothing(event);
+	if (event.target.id === "cons") {
+		event.target.classList.toggle("active");
+		document.getElementById("consbar").classList.toggle("visible");
+	}
+}
+
 function drawCursor() {
 	var x = mousex * tilesize;
 	var y = mousey * tilesize;
@@ -159,7 +207,7 @@ function drawCursor() {
 	context.lineWidth = 2;
 	context.strokeRect(x, y, tilesize, tilesize);
 	context.strokeStyle = "#FFF";
-	context.strokeRect(x - 2, y - 2, tilesize+4, tilesize+4);
+	context.strokeRect(x - 2, y - 2, tilesize + 4, tilesize + 4);
 	// if (selectedTower !== null) {
 	// 	var x = selectedTower.x * tilesize;
 	// 	var y = selectedTower.y * tilesize;

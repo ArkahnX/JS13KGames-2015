@@ -107,9 +107,13 @@ io.on('connection', function(socket) {
 				id: socket.id,
 				login: userID,
 				map: [],
-				people: 0,
-				energy: 0,
-				scrap: 0
+				people: 10,
+				power: 10,
+				energy: 10,
+				scrap: 10,
+				worth:0,
+				buildings:[],
+				units:[]
 			};
 			send(socket, "l", user);
 			save(userID, user);
