@@ -1,0 +1,101 @@
+body {
+	background: #333;
+	color: #FFF;
+	font: 20px sans-serif;
+	height: 100%;
+	cursor:default;
+}
+
+* {
+	margin:0;
+	padding:0;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	user-select:none;
+	box-sizing: border-box;
+}
+
+#canvas {
+	position: absolute;
+	left:170px;
+	height:100%;
+	max-height:800px;
+	z-index:1;
+}
+
+#side {
+	position:absolute;
+	width:157px;
+	height:100%;
+	z-index:101;
+	background: #333;
+}
+
+#side ul {
+	position:absolute;
+	bottom:0;
+	left:0;
+}
+
+#side ul li {
+	list-style-type:none;
+	cursor:pointer;
+	padding:5px;
+	padding-left:40px;
+}
+#side ul li:hover,#side ul li.active {
+	background:#444;
+}
+
+#consbar {
+	box-shadow:5px -2px 3px #222;
+	position:absolute;
+	bottom:0;
+	width:100%;
+	padding:7px;
+	padding-left:170px;
+	background:#444;
+	display:none;
+	z-index:2;
+}
+
+#consbar li {
+	cursor:pointer;
+	display:inline-block;
+}
+
+#consbar li {
+	list-style-type:none;
+	font: 15px sans-serif;
+	margin:5px;
+	padding:5px;
+}
+
+#consbar li:hover {
+	background:#555;
+}
+
+#consbar li.disabled {
+	cursor: not-allowed;
+	background:#444;
+}
+
+td {
+	text-align:center;
+}
+
+#stats {
+
+	display:block;
+}
+#stats li {
+	display:block;
+}
+
+#stats li:last-child {
+
+}
+
+.visible {
+	display:block!important;
+}
