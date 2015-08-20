@@ -6,43 +6,57 @@ var tilesize = 32;
 var mousex = 0;
 var mousey = 0;
 var strokeColor = "black";
-var buildingCosts = [];
-// power, crystal, scrap
-buildingCosts[0] = [999, 999, 999]; // starbase
-buildingCosts[1] = [0, 0, 1]; // pipe
-buildingCosts[2] = [1, 1, 2]; // power facility
-buildingCosts[3] = [2, 2, 2]; // human facility
-buildingCosts[4] = [2, 2, 2]; // scrap facility
-buildingCosts[5] = [2, 2, 2]; // crystal facility
-buildingCosts[6] = [2, 2, 2]; // storage facility
-var buildingCaps = [];
-// power, crystal, scrap, human
-buildingCaps[0] = [10, 10, 10, 10]; // starbase
-buildingCaps[1] = [0, 0, 0, 0]; // pipe
-buildingCaps[2] = [5, 0, 0, 0]; // power facility
-buildingCaps[3] = [0, 0, 0, 5]; // human facility
-buildingCaps[4] = [0, 0, 5, 0]; // scrap facility
-buildingCaps[5] = [0, 5, 0, 0]; // crystal facility
-buildingCaps[6] = [0, 5, 0, 0]; // storage facility
-var buildingSupplies = []; // resources per second
-// power, crystal, scrap, human
-buildingSupplies[0] = [0, 0, 0, 0]; // starbase
-buildingSupplies[1] = [0, 0, 0, 0]; // pipe
-buildingSupplies[2] = [1, 0, 0, 0]; // power facility
-buildingSupplies[3] = [0, 0, 0, 1]; // human facility
-buildingSupplies[4] = [0, 0, 1, 0]; // scrap facility
-buildingSupplies[5] = [0, 1, 0, 0]; // crystal facility
-buildingSupplies[6] = [5, 5, 5, 5]; // storage facility
-var buildingSizes = [];
-// X,Y
-buildingCosts[0] = [3,3]; // starbase
-buildingCosts[1] = [1,1]; // pipe
-buildingCosts[2] = [2,2]; // power facility
-buildingCosts[3] = [2,2]; // human facility
-buildingCosts[4] = [2,2]; // scrap facility
-buildingCosts[5] = [2,2]; // crystal facility
-buildingCosts[6] = [2,2]; // storage facility
-
+var costNames = ["power", "crystal", "scrap", "human"];
+var COST = 0;
+var CAP = 1;
+var PLUS = 2;
+var SIZE = 3;
+var NAME = 4;
+var DESC = 5;
+var buildings = [
+	[ // starbase
+	[999, 999, 999], // cost power, crystal, scrap
+	[10, 10, 10, 10], // cap power, crystal, scrap, human
+	[0, 0, 0, 0], // resources per second power, crystal, scrap, human
+	[3, 3], // size width, height
+	"Starbase", "Your main base of operations."],
+	[ // pipe
+	[0, 0, 1], // cost power, crystal, scrap
+	[0, 0, 0, 0], // cap power, crystal, scrap, human
+	[0, 0, 0, 0], // resources per second power, crystal, scrap, human
+	[1, 1], // size width, height
+	"Pipe", "Used to connect buildings."],
+	[ // power facility
+	[1, 1, 2], // cost power, crystal, scrap
+	[5, 0, 0, 0], // cap power, crystal, scrap, human
+	[1, 0, 0, 0], // resources per second power, crystal, scrap, human
+	[2, 2], // size width, height
+	"Power", "Increase the maximum power capacity."],
+	[ // human facility
+	[2, 2, 2], // cost power, crystal, scrap
+	[0, 0, 0, 5], // cap power, crystal, scrap, human
+	[0, 0, 0, 1], // resources per second power, crystal, scrap, human
+	[2, 2], // size width, height
+	"Human", "Create more humans."],
+	[ // scrap facility
+	[2, 2, 2], // cost power, crystal, scrap
+	[0, 0, 5, 0], // cap power, crystal, scrap, human
+	[0, 0, 1, 0], // resources per second power, crystal, scrap, human
+	[2, 2], // size width, height
+	"Scrap", "Used to mine scrap."],
+	[ // crystal facility
+	[2, 2, 2], // cost power, crystal, scrap
+	[0, 5, 0, 0], // cap power, crystal, scrap, human
+	[0, 1, 0, 0], // resources per second power, crystal, scrap, human
+	[2, 2], // size width, height
+	"Crystal", "Used to mine crystal."],
+	[ // storage facility
+	[2, 2, 2], // cost power, crystal, scrap
+	[5, 5, 5, 5], // cap power, crystal, scrap, human
+	[0, 0, 0, 0], // resources per second power, crystal, scrap, human
+	[2, 2], // size width, height
+	"Storage", "Increase all storage capacity."]
+];
 
 //login
 if (localStorage["loginID"]) {
@@ -72,6 +86,7 @@ socket.on("m", function(data) {
 })
 
 function gamestart() {
+	var consbar = document.getElementById("consbar");
 	canvas = document.getElementById("canvas");
 	context = canvas.getContext("2d");
 	canvas.width = gamesize * tilesize;
@@ -80,6 +95,16 @@ function gamestart() {
 	addEvent(canvas, "mousedown", clickHandler);
 	addEvent(canvas, "contextmenu", doNothing);
 	addEvent(document.getElementById("cons"), "click", sideMenuClick);
+	var html = '<ul class="structure ">';
+	for (var i = 0; i < buildings.length; i++) {
+		html += '<li data-building="' + i + '"><b>' + buildings[i][NAME] + '</b></li>';
+	}
+	html += "</ul>";
+	consbar.innerHTML = html + consbar.innerHTML;
+	var structures = document.querySelectorAll(".structure");
+	for (var i = 0; i < structures.length; i++) {
+		addEvent(structures[i], "mouseover", structureHover);
+	}
 	gameLoop();
 }
 
@@ -231,4 +256,25 @@ function drawCursor() {
 	// 		context.stroke();
 	// 	}
 	// }
+}
+
+function structureHover(event) {
+	doNothing(event);
+	if (event.target.dataset.building) {
+		var buildingID = event.target.dataset.building;
+
+		document.getElementById("desc").innerHTML = buildings[buildingID][DESC];
+		document.getElementById("power-cost").innerHTML = buildings[buildingID][COST][0];
+		document.getElementById("crystal-cost").innerHTML = buildings[buildingID][COST][1];
+		document.getElementById("scrap-cost").innerHTML = buildings[buildingID][COST][2];
+		// document.getElementById("human-cost").innerHTML = buildings[buildingID][COST][3];
+		document.getElementById("power-cap").innerHTML = buildings[buildingID][CAP][0];
+		document.getElementById("crystal-cap").innerHTML = buildings[buildingID][CAP][1];
+		document.getElementById("scrap-cap").innerHTML = buildings[buildingID][CAP][2];
+		document.getElementById("human-cap").innerHTML = buildings[buildingID][CAP][3];
+		document.getElementById("power-plus").innerHTML = buildings[buildingID][PLUS][0];
+		document.getElementById("crystal-plus").innerHTML = buildings[buildingID][PLUS][1];
+		document.getElementById("scrap-plus").innerHTML = buildings[buildingID][PLUS][2];
+		document.getElementById("human-plus").innerHTML = buildings[buildingID][PLUS][3];
+	}
 }
