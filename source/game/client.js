@@ -1,7 +1,8 @@
 var socket = io(document.location.href);
+var module;
 var socketRequest = "sr";
 var canvas, context;
-var gamesize = 25;
+// var gamesize = 25;
 var tilesize = 32;
 var mousex = 0;
 var mousey = 0;
@@ -59,29 +60,35 @@ var buildings = [
 ];
 
 //login
-if (localStorage["loginID"]) {
+if (localStorage["login"]) {
 	// success
-	socket.emit(socketRequest, [localStorage["loginID"], "m"])
+	socket.emit(socketRequest, [localStorage["login"], "m"])
 } else {
 	socket.emit(socketRequest, "l"); // request initial login data
 }
 
 socket.on("l", function(data) {
 	data = JSON.parse(data);
-	localStorage["uniqueID"] = data.id;
-	localStorage["loginID"] = data.login;
-	localStorage["map"] = JSON.stringify(data.map);
-	localStorage["people"] = data.people;
-	localStorage["power"] = data.power;
-	localStorage["energy"] = data.energy;
-	localStorage["scrap"] = data.scrap;
-	localStorage["buildings"] = data.buildings;
-	localStorage["units"] = data.units;
-	socket.emit(socketRequest, [localStorage["loginID"], "m"])
+	for (var attr in data) {
+		localStorage[attr] = JSON.stringify(data[attr]);
+	}
+	// localStorage["uniqueID"] = data.id;
+	// localStorage["loginID"] = data.login;
+	// localStorage["map"] = JSON.stringify(data.map);
+	// localStorage["people"] = data.people;
+	// localStorage["power"] = data.power;
+	// localStorage["energy"] = data.energy;
+	// localStorage["scrap"] = data.scrap;
+	// localStorage["buildings"] = data.buildings;
+	// localStorage["units"] = data.units;
+	socket.emit(socketRequest, [localStorage["login"], "m"])
 })
 
 socket.on("m", function(data) {
-	localStorage["map"] = data;
+	data = JSON.parse(data);
+	for (var attr in data) {
+		localStorage[attr] = JSON.stringify(data[attr]);
+	}
 	gamestart();
 })
 
@@ -95,15 +102,16 @@ function gamestart() {
 	addEvent(canvas, "mousedown", clickHandler);
 	addEvent(canvas, "contextmenu", doNothing);
 	addEvent(document.getElementById("cons"), "click", sideMenuClick);
-	var html = '<ul class="structure ">';
+	var html = '<ul>';
 	for (var i = 0; i < buildings.length; i++) {
-		html += '<li data-building="' + i + '"><b>' + buildings[i][NAME] + '</b></li>';
+		html += '<li  class="structure" data-building="' + i + '"><b>' + buildings[i][NAME] + '</b></li>';
 	}
 	html += "</ul>";
 	consbar.innerHTML = html + consbar.innerHTML;
 	var structures = document.querySelectorAll(".structure");
 	for (var i = 0; i < structures.length; i++) {
 		addEvent(structures[i], "mouseover", structureHover);
+		addEvent(structures[i], "click", selectStructure);
 	}
 	gameLoop();
 }
@@ -276,5 +284,15 @@ function structureHover(event) {
 		document.getElementById("crystal-plus").innerHTML = buildings[buildingID][PLUS][1];
 		document.getElementById("scrap-plus").innerHTML = buildings[buildingID][PLUS][2];
 		document.getElementById("human-plus").innerHTML = buildings[buildingID][PLUS][3];
+	}
+}
+
+function selectStructure(event) {
+	doNothing(event);
+	if (event.target.dataset.building) {
+		if (event.target.classList.hasClass("disabled") === false) {
+			var buildingID = event.target.dataset.building;
+
+		}
 	}
 }

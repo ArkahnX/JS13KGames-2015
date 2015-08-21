@@ -1,8 +1,11 @@
 var io = require('sandbox-io');
+var path = require("path");
+console.log(require);
+var shared = require("./shared.js");
 if (!load("userID")) {
 	save("userID", 0);
 }
-var gamesize = 25;
+var gamesize = shared.gamesize;
 var userID = load("userID");
 var tilePriorities = [0.94 * gamesize * gamesize, 0.03 * gamesize * gamesize, 0.01 * gamesize * gamesize, 0.00 * gamesize * gamesize, 0.02 * gamesize * gamesize]; // ground, obstacle, crystal, stream, scrap
 var tileFunctions = [function(map, x, y) {
@@ -124,7 +127,7 @@ io.on('connection', function(socket) {
 				var user = load(data[0]);
 				var map = user.map;
 				if (map.length > 0) {
-					return send(socket, "m", map);
+					return send(socket, "m", user);
 				}
 				for (var x = 0; x < gamesize; x++) {
 					map[x] = map[x] || [];
@@ -140,7 +143,7 @@ io.on('connection', function(socket) {
 					}
 				}
 				save(data[0], user);
-				send(socket, "m", map);
+				send(socket, "m", user);
 			}
 		}
 	});
