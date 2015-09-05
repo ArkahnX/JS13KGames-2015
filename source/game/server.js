@@ -132,7 +132,7 @@ function scrap(map, x, y) {
 }
 
 function calculateWorth(buildingID) {
-	if(buildingID === 0) {
+	if (buildingID === 0) {
 		return 0;
 	}
 	var building = shared.buildings[buildingID];
@@ -185,7 +185,7 @@ io.on('connection', function(socket) {
 				var map = user.map;
 				if (map.length > 0) {
 					shared.getWallet(user, true);
-					send(socket, "m", user);
+					return send(socket, "m", user);
 					save(data[0], user);
 				}
 				for (var x = 0; x < 25; x++) {

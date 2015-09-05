@@ -56,12 +56,14 @@ var shared = {
 	],
 
 	purchase: function(player, buildingID) {
+		var costNames = ["power", "crystal", "scrap", "human"];
 		for (var i = 0; i < costNames.length; i++) {
 			player[costNames[i]] -= buildings[buildingID][0][i];
 		}
 	},
 
 	getWallet: function(player, calculateCash) {
+		var costNames = ["power", "crystal", "scrap", "human"];
 		player.caps = [];
 		player.plus = [];
 		for (var e = 0; e < costNames.length; e++) {
@@ -70,7 +72,7 @@ var shared = {
 		}
 		for (var i = 0; i < player.buildings.length; i++) {
 			var building = player.buildings[i];
-			var buildingDetails = buildings[parseInt(building.id)];
+			var buildingDetails = shared.buildings[parseInt(building.id)];
 			for (var e = 0; e < costNames.length; e++) {
 				player.caps[e] += buildingDetails[1][e];
 				if (building.power) {
@@ -194,10 +196,10 @@ var shared = {
 		return true;
 	},
 
-	isPowered: function(player, buildings) {
+	isPowered: function(player, buildingList) {
 		// var noPower = [];
-		for (var i = 0; i < buildings.length; i++) {
-			var building = buildings[i];
+		for (var i = 0; i < buildingList.length; i++) {
+			var building = buildingList[i];
 			var nearbyBuildings = findNearBuildings(player.buildings, building);
 			if (building.power === false) {}
 			for (var e = 0; e < nearbyBuildings.length; e++) {
