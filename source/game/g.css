@@ -1,7 +1,7 @@
 body {
 	background: #333;
 	color: #FFF;
-	font: 20px sans-serif;
+	font-size: 20px;
 	height: 100%;
 	cursor:default;
 }
@@ -17,7 +17,7 @@ body {
 
 #canvas {
 	position: absolute;
-	left:170px;
+	left:200px;
 	height:100%;
 	max-height:800px;
 	z-index:1;
@@ -25,7 +25,7 @@ body {
 
 #side {
 	position:absolute;
-	width:157px;
+	width:200px;
 	height:100%;
 	z-index:101;
 	background: #333;
@@ -41,22 +41,23 @@ body {
 	list-style-type:none;
 	cursor:pointer;
 	padding:5px;
-	padding-left:40px;
+	padding-left:92px;
 }
 #side ul li:hover,#side ul li.active {
 	background:#444;
 }
 
-#consbar {
+.b {
 	box-shadow:5px -2px 3px #222;
 	position:absolute;
 	bottom:0;
 	width:100%;
 	padding:7px;
-	padding-left:170px;
+	padding-left:200px;
 	background:#444;
 	display:none;
 	z-index:2;
+	max-height: 100%;
 }
 
 #consbar li {
@@ -66,7 +67,7 @@ body {
 
 #consbar li {
 	list-style-type:none;
-	font: 15px sans-serif;
+	font: 15px;
 	margin:5px;
 	padding:5px;
 }
@@ -80,8 +81,27 @@ body {
 	background:#444;
 }
 
-td {
+#ranks {
+	overflow-y:scroll;
+}
+
+#ranks table {
+	margin: auto;
+}
+
+.expensive {
+	background:#660000;
+}
+
+td, th {
 	text-align:center;
+	border:none;
+	margin:0px;
+	padding:2px;
+}
+
+tr:nth-child(odd) {
+	background: rgba(255,255,255,0.2);
 }
 
 #stats {
@@ -98,4 +118,14 @@ td {
 
 .visible {
 	display:block!important;
+}
+
+.structure {
+	font-weight:bold;
+	border-radius:7px;
+	border:1px solid #AAA;
+}
+
+.cantbuy {
+	cursor:not-allowed;
 }
