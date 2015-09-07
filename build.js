@@ -225,6 +225,32 @@ function optimize(sourceFile, endFile) {
 		fs.truncateSync(rootDir + endFile);
 	}
 	fs.writeFileSync(rootDir + endFile, uglifiedCode);
+
+
+	var matches = uglifiedCode.match(/([a-zA-Z]+)/g);
+	var matchResults = {};
+	for (var i = 0; i < matches.length; i++) {
+		if (!matchResults[matches[i]]) {
+			matchResults[matches[i]] = 0;
+		}
+		matchResults[matches[i]]++;
+	}
+	var sortable = [];
+	for (var quantity in matchResults) {
+		sortable.push([quantity, matchResults[quantity]])
+	}
+	sortable.sort(function(a, b) {
+		return b[1] - a[1];
+	});
+	var results = {};
+	for (var i = 0; i < sortable.length; i++) {
+		results[sortable[i][0]] = sortable[i][1];
+	}
+	var exists = fs.existsSync(rootDir + endFile + ".matches.json");
+	if (exists) {
+		fs.truncateSync(rootDir + endFile + ".matches.json");
+	}
+	fs.writeFileSync(rootDir + endFile + ".matches.json", JSON.stringify(results));
 	// var minifiedCode = Minify(uglifiedCode);
 
 	// fs.writeFileSync(rootDir + "build/" + folder + "/" + fileName + ".js", uglifiedCode);

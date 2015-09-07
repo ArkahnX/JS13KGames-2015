@@ -34,11 +34,11 @@
 		}, a.prototype = {
 			init: function(a, b) {
 				var c, d, e, f, g = this;
-				if (g.table = a, g.thead = !1, g.options = b, a.rows && a.rows.length > 0 && (a.tHead && a.tHead.rows.length > 0 ? (c = a.tHead.rows[a.tHead.rows.length - 1], g.thead = !0) : c = a.rows[0]), c) {
+				if (g.table = a, g.thead = !1, g.options = b, a.rows && a.rows[length] > 0 && (a.tHead && a.tHead.rows[length] > 0 ? (c = a.tHead.rows[a.tHead.rows[length] - 1], g.thead = !0) : c = a.rows[0]), c) {
 					var h = function() {
-						g.current && g.current !== this && (g.current.classList.remove("sort-up"), g.current.classList.remove("sort-down")), g.current = this, g.sortTable(this)
+						g.current && g.current !== this && (g.current[classList].remove("sort-up"), g.current[classList].remove("sort-down")), g.current = this, g.sortTable(this)
 					};
-					for (e = 0; e < c.cells.length; e++) f = c.cells[e], f.classList.contains("no-sort") || (f.classList.add("sort-header"), f.tabindex = 0, f.addEventListener("click", h, !1), f.classList.contains("sort-default") && (d = f));
+					for (e = 0; e < c.cells[length]; e++) f = c.cells[e], f[classList].contains("no-sort") || (f[classList].add("sort-header"), f.tabindex = 0, f.addEventListener("click", h, !1), f[classList].contains("sort-default") && (d = f));
 					d && (g.current = d, g.sortTable(d))
 				}
 			},
@@ -50,12 +50,12 @@
 					m = [],
 					n = i.thead ? 0 : 1,
 					o = a.getAttribute("data-sort-method");
-				if (i.table.dispatchEvent(c("beforeSort")), g ? h = a.classList.contains("sort-up") ? "sort-up" : "sort-down" : (h = a.classList.contains("sort-up") ? "sort-down" : a.classList.contains("sort-down") ? "sort-up" : i.options.descending ? "sort-up" : "sort-down", a.classList.remove("sort-down" === h ? "sort-up" : "sort-down"), a.classList.add(h)), !(i.table.rows.length < 2)) {
+				if (i.table.dispatchEvent(c("beforeSort")), g ? h = a[classList].contains("sort-up") ? "sort-up" : "sort-down" : (h = a[classList].contains("sort-up") ? "sort-down" : a[classList].contains("sort-down") ? "sort-up" : i.options.descending ? "sort-up" : "sort-down", a[classList].remove("sort-down" === h ? "sort-up" : "sort-down"), a[classList].add(h)), !(i.table.rows[length] < 2)) {
 					if (!o) {
-						for (; m.length < 3 && n < i.table.tBodies[0].rows.length;) l = d(i.table.tBodies[0].rows[n].cells[j]), l = l.trim(), l.length > 0 && m.push(l), n++;
+						for (; m[length] < 3 && n < i.table.tBodies[0].rows[length];) l = d(i.table.tBodies[0].rows[n].cells[j]), l = l.trim(), l[length] > 0 && m.push(l), n++;
 						if (!m) return
 					}
-					for (n = 0; n < b.length; n++) if (l = b[n], o) {
+					for (n = 0; n < b[length]; n++) if (l = b[n], o) {
 						if (l.name === o) {
 							k = l.sort;
 							break
@@ -68,7 +68,7 @@
 					var p, q = [],
 						r = {}, s = 0,
 						t = 0;
-					for (n = 0; n < i.table.tBodies.length; n++) for (p = 0; p < i.table.tBodies[n].rows.length; p++) l = i.table.tBodies[n].rows[p], l.classList.contains("no-sort") ? r[s] = l : q.push({
+					for (n = 0; n < i.table.tBodies[length]; n++) for (p = 0; p < i.table.tBodies[n].rows[length]; p++) l = i.table.tBodies[n].rows[p], l[classList].contains("no-sort") ? r[s] = l : q.push({
 						tr: l,
 						td: d(l.cells[i.col]),
 						index: s
@@ -130,12 +130,17 @@
 	powerIMG.src = "power.gif";
 	var treeIMG = new Image();
 	treeIMG.src = "tree.gif";
+	var getElementById = document.getElementById;
+	var storage = window.localStorage;
+	var innerHTML = "innerHTML";
+	var classList = "classList";
+	var length = "length";
 
 	//login
-	if (localStorage["userKey"]) {
+	if (storage["userKey"]) {
 		// success
 		socket.emit(socketRequest, [
-			[localStorage["id"], localStorage["userKey"]], "m"]);
+			[storage["id"], storage["userKey"]], "m"]);
 	} else {
 		socket.emit(socketRequest, "l"); // request initial login data
 	}
@@ -143,19 +148,19 @@
 	socket.on("l", function(data) {
 		data = JSON.parse(data);
 		for (var attr in data) {
-			localStorage[attr] = JSON.stringify(data[attr]);
+			storage[attr] = JSON.stringify(data[attr]);
 		}
-		// localStorage["uniqueID"] = data.id;
-		// localStorage["loginID"] = data.login;
-		// localStorage["map"] = JSON.stringify(data.map);
-		// localStorage["people"] = data.people;
-		// localStorage["power"] = data.power;
-		// localStorage["energy"] = data.energy;
-		// localStorage["scrap"] = data.scrap;
-		// localStorage["buildings"] = data.buildings;
-		// localStorage["units"] = data.units;
+		// storage["uniqueID"] = data.id;
+		// storage["loginID"] = data.login;
+		// storage["map"] = JSON.stringify(data.map);
+		// storage["people"] = data.people;
+		// storage["power"] = data.power;
+		// storage["energy"] = data.energy;
+		// storage["scrap"] = data.scrap;
+		// storage["buildings"] = data.buildings;
+		// storage["units"] = data.units;
 		socket.emit(socketRequest, [
-			[localStorage["id"], localStorage["userKey"]], "m"])
+			[storage["id"], storage["userKey"]], "m"])
 	})
 
 	socket.on("m", function(data) {
@@ -170,16 +175,16 @@
 	socket.on("$", function(data) {
 		data = JSON.parse(data);
 		var html = "<table id='ranked'><thead><tr><th class='sort-header'>Name</th><th class='sort-header'>Worth</th><th class='sort-header'>Buildings</th></tr></thead><tbody>";
-		for (var i = 0; i < data.length; i++) {
+		for (var i = 0; i < data[length]; i++) {
 			var isPlayer = "";
-			if (data[i].name === player.name && parseInt(data[i].buildings) === player.buildings.length) {
+			if (data[i].name === player.name && parseInt(data[i].buildings) === player.b[length]) {
 				isPlayer = "player";
 			}
 			html += "<tr class='" + isPlayer + "'><td>" + data[i].name + "</td><td>" + data[i].worth + "</td><td>" + data[i].buildings + "</td></tr>";
 		}
 		html += "</tbody></table>";
-		document.getElementById("ranks").innerHTML = html;
-		new Tablesort(document.getElementById('ranked'), {
+		getElementById("ranks")[innerHTML] = html;
+		new Tablesort(getElementById('ranked'), {
 			descending: true
 		});
 	});
@@ -194,33 +199,33 @@
 		console.info("Synced with server at " + new Date());
 		data = JSON.parse(data);
 		for (var attr in data) {
-			localStorage[attr] = JSON.stringify(data[attr]);
+			storage[attr] = JSON.stringify(data[attr]);
 		}
 		player = data;
 		player.time = Date.now();
-		document.getElementById("pn").innerHTML = player.name;
+		getElementById("pn")[innerHTML] = player.name;
 	}
 
 	function gamestart() {
-		var consbar = document.getElementById("consbar");
-		canvas = document.getElementById("canvas");
+		var consbar = getElementById("consbar");
+		canvas = getElementById("canvas");
 		context = canvas.getContext("2d");
 		canvas.width = 25 * tilesize;
 		canvas.height = 25 * tilesize;
 		addEvent(canvas, "mousemove", moveHandler);
 		addEvent(canvas, "mousedown", clickHandler);
 		addEvent(canvas, "contextmenu", doNothing);
-		addEvent(document.getElementById("sidebar"), "click", sideMenuClick);
+		addEvent(getElementById("sidebar"), "click", sideMenuClick);
 		addEvent(window, "focus", focusHandler);
 		addEvent(window, "blur", stopRefresh);
 		var html = '<ul>';
-		for (var i = 1; i < buildings.length; i++) {
+		for (var i = 1; i < buildings[length]; i++) {
 			html += '<li  class="structure" data-building="' + i + '">' + buildings[i][4] + '</li>'; // NAME
 		}
 		html += "</ul>";
-		consbar.innerHTML = html + consbar.innerHTML;
+		consbar[innerHTML] = html + consbar[innerHTML];
 		var structures = document.querySelectorAll(".structure");
-		for (var i = 0; i < structures.length; i++) {
+		for (var i = 0; i < structures[length]; i++) {
 			addEvent(structures[i], "mouseover", structureHover);
 			addEvent(structures[i], "click", selectStructure);
 		}
@@ -239,31 +244,10 @@
 		}
 		context.clearRect(0, 0, canvas.width, canvas.height)
 		drawMap();
-		cursorColor();
-		drawCursor();
-		drawTempBuilding();
-		updateMoney();
-		window.requestAnimationFrame(gameLoop);
-	}
 
-	function updateMoney() {
-		document.getElementById("pc").innerHTML = player.power;
-		document.getElementById("cc").innerHTML = player.crystal;
-		document.getElementById("sc").innerHTML = player.scrap;
-		document.getElementById("hc").innerHTML = player.human;
-		document.getElementById("pm").innerHTML = player.caps[0];
-		document.getElementById("cm").innerHTML = player.caps[1];
-		document.getElementById("sm").innerHTML = player.caps[2];
-		document.getElementById("hm").innerHTML = player.caps[3];
-		document.getElementById("pp").innerHTML = player.plus[0];
-		document.getElementById("cp").innerHTML = player.plus[1];
-		document.getElementById("sp").innerHTML = player.plus[2];
-		document.getElementById("hp").innerHTML = player.plus[3];
-	}
-
-	function cursorColor() { // ground, obstacle, crystal, stream, scrap
+		// cursor color
 		strokeColor = "black";
-		var placeable = canPlace(player.map, player.buildings, tempBuilding)
+		var placeable = canPlace(player.map, player.b, tempBuilding)
 		if (placeable) {
 			strokeColor = "green";
 		} else if (placeable === null) {
@@ -271,10 +255,40 @@
 		} else if (placeable === false) {
 			strokeColor = "red";
 		}
+
+		// draw cursor
+		var x = mousex * tilesize;
+		var y = mousey * tilesize;
+		context.strokeStyle = strokeColor;
+		context.lineWidth = 2;
+		context.strokeRect(x, y, tilesize, tilesize);
+		context.strokeStyle = "#FFF";
+		context.strokeRect(x - 2, y - 2, tilesize + 4, tilesize + 4);
+
+		// draw temp building
+		context.beginPath();
+		context.fillStyle = 'rgba(0,0,0,0.5)';
+		context.rect(mousex * tilesize, mousey * tilesize, tempBuilding[2] * tilesize, tempBuilding[3] * tilesize);
+		context.fill();
+
+		// update money
+		getElementById("pc")[innerHTML] = player.power;
+		getElementById("cc")[innerHTML] = player.crystal;
+		getElementById("sc")[innerHTML] = player.scrap;
+		getElementById("hc")[innerHTML] = player.human;
+		getElementById("pm")[innerHTML] = player.caps[0];
+		getElementById("cm")[innerHTML] = player.caps[1];
+		getElementById("sm")[innerHTML] = player.caps[2];
+		getElementById("hm")[innerHTML] = player.caps[3];
+		getElementById("pp")[innerHTML] = player.plus[0];
+		getElementById("cp")[innerHTML] = player.plus[1];
+		getElementById("sp")[innerHTML] = player.plus[2];
+		getElementById("hp")[innerHTML] = player.plus[3];
+		window.requestAnimationFrame(gameLoop);
 	}
 
 	function drawMap() {
-		var map = JSON.parse(localStorage["map"]);
+		var map = JSON.parse(storage["map"]);
 		var x, y, i, e;
 		for (x = 0; x < 25; x++) {
 			for (y = 0; y < 25; y++) {
@@ -308,13 +322,13 @@
 				// }
 			}
 		}
-		for (var i = 0; i < player.buildings.length; i++) {
-			var building = player.buildings[i];
+		for (var i = 0; i < player.b[length]; i++) {
+			var building = player.b[i];
 			if (parseInt(building.id) === 1) {
-				var nearbyBuildings = findNearBuildings(player.buildings, building);
+				var nearbyBuildings = findNearBuildings(player.b, building);
 				var buildingCenterX = (building.x + (building.w / 2)) * tilesize;
 				var buildingCenterY = (building.y + (building.h / 2)) * tilesize;
-				for (var e = 0; e < nearbyBuildings.length; e++) {
+				for (var e = 0; e < nearbyBuildings[length]; e++) {
 					var nearBuildingCenterX = (nearbyBuildings[e].x + (nearbyBuildings[e].w / 2)) * tilesize;
 					var nearBuildingCenterY = (nearbyBuildings[e].y + (nearbyBuildings[e].h / 2)) * tilesize;
 					context.beginPath();
@@ -328,8 +342,8 @@
 				}
 			}
 		}
-		for (var i = 0; i < player.buildings.length; i++) {
-			var building = player.buildings[i];
+		for (var i = 0; i < player.b[length]; i++) {
+			var building = player.b[i];
 			if (parseInt(building.id) !== 1) {
 				context.beginPath();
 				context.strokeWidth = 4;
@@ -352,20 +366,9 @@
 		}
 	}
 
-	function drawTempBuilding() {
-		context.beginPath();
-		context.fillStyle = 'rgba(0,0,0,0.5)';
-		context.rect(mousex * tilesize, mousey * tilesize, tempBuilding[2] * tilesize, tempBuilding[3] * tilesize);
-		context.fill();
-	}
-
 	function addEvent(target, handler, callback) {
 		target.removeEventListener(handler, callback);
 		target.addEventListener(handler, callback, true);
-	}
-
-	function doNothing(event) {
-		event.preventDefault();
 	}
 
 	function modulus(num, size) {
@@ -387,14 +390,14 @@
 	}
 
 	function clickHandler(event) {
-		doNothing(event);
+		event.preventDefault();
 		if (event.button === 2) {
-			tempBuilding.length = 0;
+			tempBuilding[length] = 0;
 		}
-		if (tempBuilding.length > 0) {
+		if (tempBuilding[length] > 0) {
 			socket.emit(socketRequest, [
-				[localStorage["id"], localStorage["userKey"]], "p", tempBuilding]);
-			tempBuilding.length = 0;
+				[storage["id"], storage["userKey"]], "p", tempBuilding]);
+			tempBuilding[length] = 0;
 		}
 		// selectedTower = null;
 		// if (isBuilding() && canBuild()) {
@@ -407,7 +410,7 @@
 		// 		selectedTower = obstacles[mouse.x][mouse.y];
 		// 		bought = null;
 		// 		checkAffordable();
-		// 		if (onScreen.length) {
+		// 		if (onScreen[length]) {
 		// 			getAllPaths(onScreen);
 		// 		}
 		// 	}
@@ -430,92 +433,59 @@
 	}
 
 	function sideMenuClick(event) {
-		doNothing(event);
+		event.preventDefault();
 		if (event.target.id === "cons") {
-			document.getElementById("score").classList.remove("active");
-			document.getElementById("ranks").classList.remove("visible");
-			event.target.classList.toggle("active");
-			document.getElementById("consbar").classList.toggle("visible");
+			getElementById("score")[classList].remove("active");
+			getElementById("ranks")[classList].remove("visible");
+			event.target[classList].toggle("active");
+			getElementById("consbar")[classList].toggle("visible");
 		}
 		if (event.target.id === "score") {
-			document.getElementById("cons").classList.remove("active");
-			document.getElementById("consbar").classList.remove("visible");
-			event.target.classList.toggle("active");
-			document.getElementById("ranks").classList.toggle("visible");
-			if (document.getElementById("ranks").classList.contains("visible")) {
+			getElementById("cons")[classList].remove("active");
+			getElementById("consbar")[classList].remove("visible");
+			event.target[classList].toggle("active");
+			getElementById("ranks")[classList].toggle("visible");
+			if (getElementById("ranks")[classList].contains("visible")) {
 				socket.emit(socketRequest, [
-					[localStorage["id"], localStorage["userKey"]], "$"]);
-				document.getElementById("ranks").innerHTML = "Loading...";
+					[storage["id"], storage["userKey"]], "$"]);
+				getElementById("ranks")[innerHTML] = "Loading...";
 			}
 		}
 	}
 
-	function drawCursor() {
-		var x = mousex * tilesize;
-		var y = mousey * tilesize;
-		context.strokeStyle = strokeColor;
-		context.lineWidth = 2;
-		context.strokeRect(x, y, tilesize, tilesize);
-		context.strokeStyle = "#FFF";
-		context.strokeRect(x - 2, y - 2, tilesize + 4, tilesize + 4);
-		// if (selectedTower !== null) {
-		// 	var x = selectedTower.x * tilesize;
-		// 	var y = selectedTower.y * tilesize;
-		// 	context.strokeStyle = "#FFF";
-		// 	context.lineWidth = 2;
-		// 	context.strokeRect(x, y, tilesize, tilesize);
-		// 	if (typeof selectedTower.weapon !== "string") {
-		// 		context.beginPath();
-		// 		context.arc(centerSymmetrical(selectedTower.x, 1), centerSymmetrical(selectedTower.y, 1), selectedTower.weapon.range * tilesize, 0, 2 * Math.PI, false);
-		// 		context.fillStyle = "rgba(255,255,255,0.3)";
-		// 		context.fill();
-		// 		var radius = (selectedTower.weapon.range * tilesize) - 1;
-		// 		var startAngle = 4 * Math.PI;
-		// 		var endAngle = 2 * Math.PI;
-
-		// 		context.beginPath();
-		// 		context.arc(centerSymmetrical(selectedTower.x, 1), centerSymmetrical(selectedTower.y, 1), radius, startAngle, endAngle, false);
-		// 		context.lineWidth = 2;
-		// 		// line color
-		// 		context.strokeStyle = "rgba(0,0,0,0.3)";
-		// 		context.stroke();
-		// 	}
-		// }
-	}
-
 	function structureHover(event) {
-		doNothing(event);
+		event.preventDefault();
 		if (event.target.dataset.building /* && lastTarget !== event.target.dataset.building*/ ) {
 			lastTarget = event.target.dataset.building;
 			var buildingID = event.target.dataset.building;
 			wallet = getWallet(player);
 			var purchaseable = canBuy(wallet, buildings[buildingID][0]); // COST
-			document.getElementById("desc").innerHTML = buildings[buildingID][4]; // DESC
+			getElementById("desc")[innerHTML] = buildings[buildingID][4]; // DESC
 			var expensive = false;
-			event.target.classList.remove("disabled");
-			for (var i = 0; i < costNames.length; i++) {
-				var costElement = document.getElementById(costNames[i] + "-cost");
-				var capElement = document.getElementById(costNames[i] + "-cap");
-				var plusElement = document.getElementById(costNames[i] + "-plus");
-				costElement.innerHTML = buildings[buildingID][0][i]; // COST
-				capElement.innerHTML = buildings[buildingID][1][i]; // CAP
-				plusElement.innerHTML = buildings[buildingID][2][i]; // PLUS
-				costElement.classList.remove("expensive");
+			event.target[classList].remove("disabled");
+			for (var i = 0; i < costNames[length]; i++) {
+				var costElement = getElementById(costNames[i] + "-cost");
+				var capElement = getElementById(costNames[i] + "-cap");
+				var plusElement = getElementById(costNames[i] + "-plus");
+				costElement[innerHTML] = buildings[buildingID][0][i]; // COST
+				capElement[innerHTML] = buildings[buildingID][1][i]; // CAP
+				plusElement[innerHTML] = buildings[buildingID][2][i]; // PLUS
+				costElement[classList].remove("expensive");
 				if (buildings[buildingID][0][i] > wallet[i]) { // COST
 					expensive = true;
-					costElement.classList.add("expensive");
+					costElement[classList].add("expensive");
 				}
 			}
 			if (expensive) {
-				event.target.classList.add("disabled");
+				event.target[classList].add("disabled");
 			}
 		}
 	}
 
 	function selectStructure(event) {
-		doNothing(event);
+		event.preventDefault();
 		if (event.target.dataset.building) {
-			if (event.target.classList.contains("disabled") === false) {
+			if (event.target[classList].contains("disabled") === false) {
 				var buildingID = parseInt(event.target.dataset.building);
 				if (canBuy(wallet, buildings[buildingID][0])) { // COST
 					tempBuilding = [mousex, mousey, buildings[buildingID][3][0], buildings[buildingID][3][1], buildings[buildingID][6], buildingID]; // SIZE
@@ -541,9 +511,9 @@
 	}
 
 	function refresh() {
-		if (continueReloading && localStorage["userKey"]) {
+		if (continueReloading && storage["userKey"]) {
 			socket.emit(socketRequest, [
-				[localStorage["id"], localStorage["userKey"]], "u"]);
+				[storage["id"], storage["userKey"]], "u"]);
 		}
 	}
 }(window, document));

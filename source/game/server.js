@@ -31,13 +31,13 @@ function isSame(oldUser, newUser) {
 		if (oldUser[attr] === undefined) {
 			return false;
 		}
-		if (["map", "units", "buildings", "time", "caps", "plus"].indexOf(attr) === -1) {
+		if (["map", "units", "b", "time", "caps", "plus"].indexOf(attr) === -1) {
 			if (oldUser[attr] !== newUser[attr]) {
 				return false;
 			}
 		}
 	}
-	if (oldUser.buildings.length !== newUser.buildings.length) {
+	if (oldUser.b.length !== newUser.b.length) {
 		return false;
 	}
 	if (oldUser.map.length !== newUser.map.length) {
@@ -192,10 +192,10 @@ io.on('connection', function(socket) {
 				for (var i = 0; i < userID; i++) {
 					var user = load(i);
 					user.worth = 0;
-					if (user.buildings) {
+					if (user.b) {
 						shared.getWallet(user, true);
-						for (var e = 0; e < user.buildings.length; e++) {
-							user.worth += calculateWorth(user.buildings[e].id);
+						for (var e = 0; e < user.b.length; e++) {
+							user.worth += calculateWorth(user.b[e].id);
 						}
 						user.worth += Math.floor(user.power * 0.5);
 						user.worth += Math.floor(user.crystal * 0.5);
@@ -204,7 +204,7 @@ io.on('connection', function(socket) {
 						datalist.push({
 							name: user.name || user.id,
 							worth: user.worth,
-							buildings: user.buildings.length
+							buildings: user.b.length
 						});
 						save(i, user);
 					}
@@ -219,10 +219,10 @@ io.on('connection', function(socket) {
 				save(userIndex, user);
 			}
 			if (data[1] === "p") {
-				var placeable = shared.canPlace(user.map, user.buildings, data[2]);
+				var placeable = shared.canPlace(user.map, user.b, data[2]);
 				var buyable = shared.canBuy(shared.getWallet(user, true), shared.buildings[data[2][5]][0]);
 				if (placeable && buyable) {
-					user.buildings.push({
+					user.b.push({
 						x: parseInt(data[2][0]),
 						y: parseInt(data[2][1]),
 						w: parseInt(data[2][2]),
@@ -232,7 +232,7 @@ io.on('connection', function(socket) {
 						time: Date.now()
 					});
 					shared.handleOverlap(user);
-					shared.isPowered(user, user.buildings);
+					shared.isPowered(user, user.b);
 					shared.purchase(user, data[2][5]);
 					send(socket, "u", user);
 				}
@@ -261,7 +261,7 @@ function createUser(socket) {
 		crystal: 0,
 		scrap: 0,
 		worth: 0,
-		buildings: [{
+		b: [{
 			x: random(0, 25 - shared.buildings[0][3][0]),
 			y: random(0, 25 - shared.buildings[0][3][1]),
 			w: shared.buildings[0][3][0],
