@@ -1,4 +1,113 @@
 (function(window, document) {
+	/*!
+	 * tablesort v3.1.0 (2015-07-03)
+	 * http://tristen.ca/tablesort/demo/
+	 * Copyright (c) 2015 ; Licensed MIT
+	 */
+	! function() {
+		function a(b, c) {
+			if (!(this instanceof a)) return new a(b, c);
+			if (!b || "TABLE" !== b.tagName) throw new Error("Element must be a table");
+			this.init(b, c || {})
+		}
+		var b = [],
+			c = function(a) {
+				var b;
+				return window.CustomEvent && "function" == typeof window.CustomEvent ? b = new CustomEvent(a) : (b = document.createEvent("CustomEvent"), b.initCustomEvent(a, !1, !1, void 0)), b
+			}, d = function(a) {
+				return a.getAttribute("data-sort") || a.textContent || a.innerText || ""
+			}, e = function(a, b) {
+				return a = a.toLowerCase(), b = b.toLowerCase(), a === b ? 0 : b > a ? 1 : -1
+			}, f = function(a, b) {
+				return function(c, d) {
+					var e = a(c.td, d.td);
+					return 0 === e ? b ? d.index - c.index : c.index - d.index : e
+				}
+			};
+		a.extend = function(a, c, d) {
+			if ("function" != typeof c || "function" != typeof d) throw new Error("Pattern and sort must be a function");
+			b.push({
+				name: a,
+				pattern: c,
+				sort: d
+			})
+		}, a.prototype = {
+			init: function(a, b) {
+				var c, d, e, f, g = this;
+				if (g.table = a, g.thead = !1, g.options = b, a.rows && a.rows.length > 0 && (a.tHead && a.tHead.rows.length > 0 ? (c = a.tHead.rows[a.tHead.rows.length - 1], g.thead = !0) : c = a.rows[0]), c) {
+					var h = function() {
+						g.current && g.current !== this && (g.current.classList.remove("sort-up"), g.current.classList.remove("sort-down")), g.current = this, g.sortTable(this)
+					};
+					for (e = 0; e < c.cells.length; e++) f = c.cells[e], f.classList.contains("no-sort") || (f.classList.add("sort-header"), f.tabindex = 0, f.addEventListener("click", h, !1), f.classList.contains("sort-default") && (d = f));
+					d && (g.current = d, g.sortTable(d))
+				}
+			},
+			sortTable: function(a, g) {
+				var h, i = this,
+					j = a.cellIndex,
+					k = e,
+					l = "",
+					m = [],
+					n = i.thead ? 0 : 1,
+					o = a.getAttribute("data-sort-method");
+				if (i.table.dispatchEvent(c("beforeSort")), g ? h = a.classList.contains("sort-up") ? "sort-up" : "sort-down" : (h = a.classList.contains("sort-up") ? "sort-down" : a.classList.contains("sort-down") ? "sort-up" : i.options.descending ? "sort-up" : "sort-down", a.classList.remove("sort-down" === h ? "sort-up" : "sort-down"), a.classList.add(h)), !(i.table.rows.length < 2)) {
+					if (!o) {
+						for (; m.length < 3 && n < i.table.tBodies[0].rows.length;) l = d(i.table.tBodies[0].rows[n].cells[j]), l = l.trim(), l.length > 0 && m.push(l), n++;
+						if (!m) return
+					}
+					for (n = 0; n < b.length; n++) if (l = b[n], o) {
+						if (l.name === o) {
+							k = l.sort;
+							break
+						}
+					} else if (m.every(l.pattern)) {
+						k = l.sort;
+						break
+					}
+					i.col = j;
+					var p, q = [],
+						r = {}, s = 0,
+						t = 0;
+					for (n = 0; n < i.table.tBodies.length; n++) for (p = 0; p < i.table.tBodies[n].rows.length; p++) l = i.table.tBodies[n].rows[p], l.classList.contains("no-sort") ? r[s] = l : q.push({
+						tr: l,
+						td: d(l.cells[i.col]),
+						index: s
+					}), s++;
+					for ("sort-down" === h ? (q.sort(f(k, !0)), q.reverse()) : q.sort(f(k, !1)), n = 0; s > n; n++) r[n] ? (l = r[n], t++) : l = q[n - t].tr, i.table.tBodies[0].appendChild(l);
+					i.table.dispatchEvent(c("afterSort"))
+				}
+			},
+			refresh: function() {
+				void 0 !== this.current && this.sortTable(this.current, !0)
+			}
+		}, "undefined" != typeof module && module.exports ? module.exports = a : window.Tablesort = a
+	}();
+	(function() {
+		var cleanNumber = function(i) {
+			return i.replace(/[^\-?0-9.]/g, '');
+		},
+
+		compareNumber = function(a, b) {
+			a = parseFloat(a);
+			b = parseFloat(b);
+
+			a = isNaN(a) ? 0 : a;
+			b = isNaN(b) ? 0 : b;
+
+			return a - b;
+		};
+
+		Tablesort.extend('number', function(item) {
+			return item.match(/^-?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) || // Prefixed currency
+			item.match(/^-?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) || // Suffixed currency
+			item.match(/^-?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/); // Number
+		}, function(a, b) {
+			a = cleanNumber(a);
+			b = cleanNumber(b);
+
+			return compareNumber(b, a);
+		});
+	}());
 	for (var attr in shared) {
 		window[attr] = shared[attr];
 	}
@@ -19,13 +128,14 @@
 	var frame = 0;
 	var powerIMG = new Image();
 	powerIMG.src = "power.gif";
-		var treeIMG = new Image();
+	var treeIMG = new Image();
 	treeIMG.src = "tree.gif";
 
 	//login
-	if (localStorage["login"]) {
+	if (localStorage["userKey"]) {
 		// success
-		socket.emit(socketRequest, [localStorage["login"], "m"])
+		socket.emit(socketRequest, [
+			[localStorage["id"], localStorage["userKey"]], "m"]);
 	} else {
 		socket.emit(socketRequest, "l"); // request initial login data
 	}
@@ -44,7 +154,8 @@
 		// localStorage["scrap"] = data.scrap;
 		// localStorage["buildings"] = data.buildings;
 		// localStorage["units"] = data.units;
-		socket.emit(socketRequest, [localStorage["login"], "m"])
+		socket.emit(socketRequest, [
+			[localStorage["id"], localStorage["userKey"]], "m"])
 	})
 
 	socket.on("m", function(data) {
@@ -52,14 +163,25 @@
 		gamestart();
 	});
 
+	socket.on("disconnect", function() {
+		window.location.reload();
+	});
+
 	socket.on("$", function(data) {
 		data = JSON.parse(data);
-		var html = "<table> <tr><th>Name</th><th>Worth</th><th>Buildings</th><th>ID</th></tr>";
+		var html = "<table id='ranked'><thead><tr><th class='sort-header'>Name</th><th class='sort-header'>Worth</th><th class='sort-header'>Buildings</th></tr></thead><tbody>";
 		for (var i = 0; i < data.length; i++) {
-			html += "<tr><td>" + data[i].name + "</td><td>" + data[i].worth + "</td><td>" + data[i].buildings + "</td><td>" + data[i].id + "</td></tr>";
+			var isPlayer = "";
+			if (data[i].name === player.name && parseInt(data[i].buildings) === player.buildings.length) {
+				isPlayer = "player";
+			}
+			html += "<tr class='" + isPlayer + "'><td>" + data[i].name + "</td><td>" + data[i].worth + "</td><td>" + data[i].buildings + "</td></tr>";
 		}
-		html += "</table>";
+		html += "</tbody></table>";
 		document.getElementById("ranks").innerHTML = html;
+		new Tablesort(document.getElementById('ranked'), {
+			descending: true
+		});
 	});
 
 	socket.on("e", function(data) {
@@ -75,8 +197,8 @@
 			localStorage[attr] = JSON.stringify(data[attr]);
 		}
 		player = data;
-		console.log(player, player.map[0])
-		player.time = Date.now()
+		player.time = Date.now();
+		document.getElementById("pn").innerHTML = player.name;
 	}
 
 	function gamestart() {
@@ -270,7 +392,8 @@
 			tempBuilding.length = 0;
 		}
 		if (tempBuilding.length > 0) {
-			socket.emit(socketRequest, [localStorage["login"], "p", tempBuilding]);
+			socket.emit(socketRequest, [
+				[localStorage["id"], localStorage["userKey"]], "p", tempBuilding]);
 			tempBuilding.length = 0;
 		}
 		// selectedTower = null;
@@ -320,7 +443,8 @@
 			event.target.classList.toggle("active");
 			document.getElementById("ranks").classList.toggle("visible");
 			if (document.getElementById("ranks").classList.contains("visible")) {
-				socket.emit(socketRequest, [localStorage["login"], "$"]);
+				socket.emit(socketRequest, [
+					[localStorage["id"], localStorage["userKey"]], "$"]);
 				document.getElementById("ranks").innerHTML = "Loading...";
 			}
 		}
@@ -417,8 +541,9 @@
 	}
 
 	function refresh() {
-		if (continueReloading && localStorage["login"]) {
-			socket.emit(socketRequest, [localStorage["login"], "u"]);
+		if (continueReloading && localStorage["userKey"]) {
+			socket.emit(socketRequest, [
+				[localStorage["id"], localStorage["userKey"]], "u"]);
 		}
 	}
 }(window, document));

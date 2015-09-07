@@ -25,7 +25,7 @@ output.on('close', function() {
 });
 var archive = archiver('zip'); // or archiver('zip', {});
 archive.on('error', function(err) {
-  throw err;
+	throw err;
 });
 archive.pipe(output);
 
@@ -52,6 +52,9 @@ archive.append(fs.createReadStream("D:/GitHub/JS13KGames-2015/build/game/package
 });
 archive.append(fs.createReadStream("D:/GitHub/JS13KGames-2015/build/game/power.gif"), {
 	name: "game/power.gif"
+});
+archive.append(fs.createReadStream("D:/GitHub/JS13KGames-2015/build/game/tree.gif"), {
+	name: "game/tree.gif"
 });
 archive.append(fs.createReadStream("D:/GitHub/JS13KGames-2015/build/game/g.css"), {
 	name: "game/g.css"

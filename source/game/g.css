@@ -4,6 +4,7 @@ body {
 	font-size: 20px;
 	height: 100%;
 	cursor:default;
+	overflow:hidden;
 }
 
 * {
@@ -81,12 +82,61 @@ body {
 	background:#444;
 }
 
-#ranks {
+#ranks tbody, thead {
+	display:block;
+}
+
+#ranks tbody {
+	max-height:500px;
 	overflow-y:scroll;
 }
 
 #ranks table {
+	max-height:100%;
 	margin: auto;
+}
+
+#ranks table {
+	width: 750px;
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+#ranks table th {
+	text-decoration: underline;
+}
+#ranks table th,
+#ranks table td {
+	padding: 5px;
+	text-align: left;
+}
+#ranks table td:nth-child(1),
+#ranks table th:nth-child(1) {
+	min-width: 200px;
+}
+#ranks table td:nth-child(2),
+#ranks table th:nth-child(2) {
+	min-width: 200px;
+}
+#ranks table td:nth-child(3),
+#ranks table th:nth-child(3) {
+	width: 350px;
+}
+#ranks table thead {
+	/*background-color: #333333;*/
+	/*color: #fdfdfd;*/
+}
+#ranks table thead tr {
+	display: block;
+	position: relative;
+}
+#ranks table tbody {
+	display: block;
+	overflow: auto;
+	width: 100%;
+	height: 300px;
+}
+#ranks table tbody tr:nth-child(even) {
+	/*background-color: #dddddd;*/
 }
 
 .expensive {
@@ -129,3 +179,70 @@ tr:nth-child(odd) {
 .cantbuy {
 	cursor:not-allowed;
 }
+
+tr.player {
+	background:#000;
+}
+
+th.sort-header::-moz-selection { background:transparent; }
+th.sort-header::selection      { background:transparent; }
+th.sort-header { cursor:pointer; }
+table th.sort-header:after {
+  content:'';
+  float:right;
+  margin-top:7px;
+  border-width:0 4px 4px;
+  border-style:solid;
+  border-color:#000 transparent;
+  visibility:hidden;
+  }
+table th.sort-header:hover:after {
+  visibility:visible;
+  }
+table th.sort-up:after,
+table th.sort-down:after,
+table th.sort-down:hover:after {
+  visibility:visible;
+  opacity:0.6;
+  }
+table th.sort-up:after {
+  border-bottom:none;
+  border-width:4px 4px 0;
+  }
+
+/*  th.sort-header::-moz-selection { background:transparent; }
+th.sort-header::selection      { background:transparent; }
+th.sort-header { cursor:pointer; }
+table th.sort-header:after {
+	content:'';
+	float:right;
+	margin-top:7px;
+	border-width:4px 4px 0;
+	border-style:solid;
+	border-color:#000000 transparent;
+	visibility:hidden;
+}
+table th.sort-header:hover:after {
+	visibility:visible;
+}
+table th.sort-up:after,
+table th.sort-down:after,
+table th.sort-down:hover:after {
+	visibility:visible;
+	border-color:#000 transparent;
+	opacity:1;
+}
+table th.sort-up:after {
+	border-width:0 4px 4px;
+	border-bottom:none;
+}*/
+
+#ranks table th {
+    background:#eee;
+    background:-webkit-gradient(linear, left top, left bottom, from(#eee), to(#ddd));
+    background:-moz-linear-gradient(top, #eee, #ddd);
+    text-shadow:0 1px 0 #fff;
+    font-weight:bold;
+    vertical-align:bottom;
+    color:black;
+    }

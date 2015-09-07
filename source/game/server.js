@@ -5,6 +5,8 @@ if (!load("userID")) {
 	save("userID", 0);
 }
 var batchedWrites = [];
+var firstNames = "Andrew,Ivan,Benjamin,Bernard,Julian,Hilda,Cordelia,Martha,Amy,Emilie".split(",");
+var lastNames = "Copeland,Burgess,Mendez,Davidson,Barnes,Williamson,Watts,Gregory,Young,Freeman".split(",");
 // var 25 = 25;
 var userID = load("userID");
 var tilePriorities = [0.94 * 25 * 25, 0.03 * 25 * 25, 0.01 * 25 * 25, 0.00 * 25 * 25, 0.02 * 25 * 25]; // ground, obstacle, crystal, stream, scrap
@@ -151,42 +153,23 @@ io.on('connection', function(socket) {
 	socket.on('sr', function(data) {
 		// send initial login information
 		if (data === "l") {
-			var user = {
-				id: socket.id,
-				login: userID,
-				map: [],
-				caps: [0, 0, 0, 0],
-				plus: [0, 0, 0, 0],
-				human: 0,
-				power: 0,
-				crystal: 0,
-				scrap: 0,
-				worth: 0,
-				buildings: [{
-					x: random(0, 25 - shared.buildings[0][3][0]),
-					y: random(0, 25 - shared.buildings[0][3][1]),
-					w: shared.buildings[0][3][0],
-					h: shared.buildings[0][3][1],
-					id: 0,
-					power: true,
-					time: Date.now()
-				}],
-				maxed: 0,
-				units: [],
-				time: Date.now()
-			};
-			send(socket, "l", user);
-			save(userID, user);
-			save("userID", ++userID);
+			createUser(socket);
 		}
 		if (typeof data === "object") {
-			var user = load(data[0]);
+			var userIndex = parseInt(data[0][0]);
+			var userKey = JSON.parse(data[0][1]);
+			var user = load(userIndex);
+			if (!user || user.userKey !== userKey) {
+				send(socket, "e", "Unable to login with user data.");
+				// return false;
+				return createUser(socket);
+			}
 			if (data[1] === "m") {
 				var map = user.map;
 				if (map.length > 0) {
 					shared.getWallet(user, true);
 					return send(socket, "m", user);
-					save(data[0], user);
+					save(userIndex, user);
 				}
 				for (var x = 0; x < 25; x++) {
 					map[x] = map[x] || [];
@@ -201,7 +184,7 @@ io.on('connection', function(socket) {
 						// }
 					}
 				}
-				save(data[0], user);
+				save(userIndex, user);
 				send(socket, "m", user);
 			}
 			if (data[1] === "$") {
@@ -219,10 +202,9 @@ io.on('connection', function(socket) {
 						user.worth += Math.floor(user.scrap * 0.5);
 						user.worth += Math.floor(user.human * 0.5);
 						datalist.push({
-							name: user.id,
+							name: user.name || user.id,
 							worth: user.worth,
-							buildings: user.buildings.length,
-							id: user.login
+							buildings: user.buildings.length
 						});
 						save(i, user);
 					}
@@ -230,11 +212,11 @@ io.on('connection', function(socket) {
 				send(socket, "$", datalist);
 			}
 			if (data[1] === "u") {
-				console.log("received update request")
-				// save(data[0], user);
+				// console.log("received update request")
+				// save(userIndex, user);
 				shared.getWallet(user, true);
 				send(socket, "u", user);
-				save(data[0], user);
+				save(userIndex, user);
 			}
 			if (data[1] === "p") {
 				var placeable = shared.canPlace(user.map, user.buildings, data[2]);
@@ -254,7 +236,7 @@ io.on('connection', function(socket) {
 					shared.purchase(user, data[2][5]);
 					send(socket, "u", user);
 				}
-				save(data[0], user);
+				save(userIndex, user);
 				if (placeable === false) {
 					send(socket, "e", "Unable to place structure.");
 				}
@@ -265,6 +247,38 @@ io.on('connection', function(socket) {
 		}
 	});
 });
+
+function createUser(socket) {
+	var user = {
+		userKey: socket.id,
+		id: userID,
+		map: [],
+		name: firstNames[random(0, 9)] + " " + lastNames[random(0, 9)],
+		caps: [0, 0, 0, 0],
+		plus: [0, 0, 0, 0],
+		human: 0,
+		power: 0,
+		crystal: 0,
+		scrap: 0,
+		worth: 0,
+		buildings: [{
+			x: random(0, 25 - shared.buildings[0][3][0]),
+			y: random(0, 25 - shared.buildings[0][3][1]),
+			w: shared.buildings[0][3][0],
+			h: shared.buildings[0][3][1],
+			id: 0,
+			power: true,
+			time: Date.now()
+		}],
+		maxed: 0,
+		units: [],
+		time: Date.now()
+	};
+	send(socket, "l", user);
+	save(userID, user);
+	save("userID", ++userID);
+}
+
 // setInterval(function() {
 // 	if (batchedWrites.length) {
 // 		for (var i = 0; i < batchedWrites.length; i++) {

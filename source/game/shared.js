@@ -14,7 +14,7 @@ var shared = {
 	[ // starbase
 	[43200, 57600, 86400, 0], // cost power, crystal, scrap
 	[300, 300, 300, 300], // cap power, crystal, scrap, human
-	[1, 1, 1, 1], // resources per second power, crystal, scrap, human
+	[10, 10, 10, 10], // resources per second power, crystal, scrap, human
 	[3, 3], // size width, height
 	"Starbase", "Your main base of operations.", 0, "gold"],
 		[ // pipe
@@ -58,7 +58,7 @@ var shared = {
 	purchase: function(player, buildingID) {
 		var costNames = ["power", "crystal", "scrap", "human"];
 		for (var i = 0; i < costNames.length; i++) {
-			player[costNames[i]] -= buildings[buildingID][0][i];
+			player[costNames[i]] -= shared.buildings[buildingID][0][i];
 		}
 	},
 
@@ -74,8 +74,8 @@ var shared = {
 			var building = player.buildings[i];
 			var buildingDetails = shared.buildings[parseInt(building.id)];
 			for (var e = 0; e < costNames.length; e++) {
-				player.caps[e] += buildingDetails[1][e];
 				if (building.power) {
+					player.caps[e] += buildingDetails[1][e];
 					player.plus[e] += buildingDetails[2][e];
 				}
 				if (calculateCash && building.power) {
@@ -144,7 +144,7 @@ var shared = {
 		for (var i = 0; i < structureList.length; i++) {
 			currentStructure = structureList[i];
 			if ((parseInt(currentStructure.id) !== 1 && parseInt(structure[5]) !== 1) || parseInt(structure[5]) === 1) {
-				if (isOverlapping(structure[0], structure[1], structure[2], structure[3], currentStructure.x, currentStructure.y, currentStructure.w, currentStructure.h)) {
+				if (shared.isOverlapping(structure[0], structure[1], structure[2], structure[3], currentStructure.x, currentStructure.y, currentStructure.w, currentStructure.h)) {
 					return false;
 				}
 			}
@@ -159,22 +159,22 @@ var shared = {
 				}
 				if (structure[4] > 0) {
 					if (mapx === 0) {
-						if (left(playerMap, coordx, coordy) === structure[4]) {
+						if (shared.left(playerMap, coordx, coordy) === structure[4]) {
 							foundRequiredTile = true;
 						}
 					}
 					if (mapx === structure[2] - 1) {
-						if (right(playerMap, coordx, coordy) === structure[4]) {
+						if (shared.right(playerMap, coordx, coordy) === structure[4]) {
 							foundRequiredTile = true;
 						}
 					}
 					if (mapy === 0) {
-						if (up(playerMap, coordx, coordy) === structure[4]) {
+						if (shared.up(playerMap, coordx, coordy) === structure[4]) {
 							foundRequiredTile = true;
 						}
 					}
 					if (mapy === structure[3] - 1) {
-						if (down(playerMap, coordx, coordy) === structure[4]) {
+						if (shared.down(playerMap, coordx, coordy) === structure[4]) {
 							foundRequiredTile = true;
 						}
 					}
@@ -200,12 +200,12 @@ var shared = {
 		// var noPower = [];
 		for (var i = 0; i < buildingList.length; i++) {
 			var building = buildingList[i];
-			var nearbyBuildings = findNearBuildings(player.buildings, building);
+			var nearbyBuildings = shared.findNearBuildings(player.buildings, building);
 			if (building.power === false) {}
 			for (var e = 0; e < nearbyBuildings.length; e++) {
 				if ((nearbyBuildings[e].power || parseInt(building.id) === 2) && building.power === false) {
 					building.power = true;
-					isPowered(player, nearbyBuildings)
+					shared.isPowered(player, nearbyBuildings)
 				}
 			}
 			if (!nearbyBuildings.length && parseInt(building.id) === 2 && building.power === false) {
@@ -215,14 +215,14 @@ var shared = {
 	},
 
 	handleOverlap: function(player) {
-		var keepList = [player.buildings[0]];
+		var keepList = [];
 		for (var i = 0; i < player.buildings.length; i++) {
 			var primaryBuilding = player.buildings[i];
 			var overlapping = false;
 			for (var e = 0; e < player.buildings.length; e++) {
 				if (i !== e) {
 					var nextBuilding = player.buildings[e];
-					if (isOverlapping(primaryBuilding.x, primaryBuilding.y, primaryBuilding.w, primaryBuilding.h, nextBuilding.x, nextBuilding.y, nextBuilding.w, nextBuilding.h)) {
+					if (shared.isOverlapping(primaryBuilding.x, primaryBuilding.y, primaryBuilding.w, primaryBuilding.h, nextBuilding.x, nextBuilding.y, nextBuilding.w, nextBuilding.h)) {
 						if (parseInt(primaryBuilding.id) === 1) {
 							overlapping = true;
 						}
@@ -264,7 +264,7 @@ var shared = {
 	findNearBuildings: function(buildingList, building) {
 		var result = [];
 		for (var i = 0; i < buildingList.length; i++) {
-			if (matchCoords(getCoords(building), buildingList[i]) || matchCoords(getCoords(buildingList[i]), building)) {
+			if (shared.matchCoords(shared.getCoords(building), buildingList[i]) || shared.matchCoords(shared.getCoords(buildingList[i]), building)) {
 				result.push(buildingList[i])
 			}
 		}
@@ -276,7 +276,7 @@ var shared = {
 			// if (coords[i].x === building.x && coords[i].y === building.y) {
 			// 	return true;
 			// }
-			if (isOverlapping(coords[i].x, coords[i].y, 1, 1, building.x, building.y, building.w, building.h)) {
+			if (shared.isOverlapping(coords[i].x, coords[i].y, 1, 1, building.x, building.y, building.w, building.h)) {
 				return true;
 			}
 		}
