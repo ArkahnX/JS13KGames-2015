@@ -1,0 +1,1 @@
+lessc source/game/g.css --clean-css -x > build/game/g.css
