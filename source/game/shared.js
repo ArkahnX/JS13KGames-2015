@@ -14,45 +14,45 @@ var shared = {
 	[ // starbase
 	[43200, 57600, 86400, 0], // cost power, crystal, scrap
 	[300, 300, 300, 300], // cap power, crystal, scrap, human
-	[10, 10, 10, 10], // resources per second power, crystal, scrap, human
+	[2, 2, 2, 2], // resources per second power, crystal, scrap, human
 	[3, 3], // size width, height
-	"Starbase", "Your main base of operations.", 0, "gold"],
+	"Starbase", "Your main base of operations.", 0, "gold",18],
 		[ // pipe
 		[0, 0, 10, 0], // cost power, crystal, scrap
 		[0, 0, 0, 0], // cap power, crystal, scrap, human
 		[0, 0, 0, 0], // resources per second power, crystal, scrap, human
 		[1, 1], // size width, height
-		"Pipe", "Used to connect buildings.", 0, "orange"],
+		"Pipe", "Used to connect buildings.", 0, "orange",15],
 		[ // power facility
 		[60, 60, 120, 0], // cost power, crystal, scrap
 		[30, 0, 0, 0], // cap power, crystal, scrap, human
 		[1, 0, 0, 0], // resources per second power, crystal, scrap, human
 		[2, 2], // size width, height
-		"Power", "Increase the maximum power capacity.", 0, "yellow"],
+		"Power", "Increase the maximum power capacity.", 0, "yellow",15],
 		[ // human facility
 		[120, 120, 120, 0], // cost power, crystal, scrap
 		[0, 0, 0, 30], // cap power, crystal, scrap, human
 		[0, 0, 0, 1], // resources per second power, crystal, scrap, human
 		[2, 2], // size width, height
-		"Human", "Create more humans.", 0, "white"],
+		"Human", "Create more humans.", 0, "white",13],
 		[ // scrap facility
 		[120, 120, 120, 0], // cost power, crystal, scrap
 		[0, 0, 30, 0], // cap power, crystal, scrap, human
 		[0, 0, 1, 0], // resources per second power, crystal, scrap, human
 		[2, 2], // size width, height
-		"Scrap", "Used to mine scrap.", 4, "silver"],
+		"Scrap", "Used to mine scrap.", 4, "silver",17],
 		[ // crystal facility
 		[120, 120, 120, 0], // cost power, crystal, scrap
 		[0, 30, 0, 0], // cap power, crystal, scrap, human
 		[0, 1, 0, 0], // resources per second power, crystal, scrap, human
 		[2, 2], // size width, height
-		"Crystal", "Used to mine crystal.", 2, "lightblue"],
+		"Crystal", "Used to mine crystal.", 2, "lightblue",14],
 		[ // storage facility
 		[240, 240, 240, 0], // cost power, crystal, scrap
 		[100, 100, 100, 100], // cap power, crystal, scrap, human
 		[0, 0, 0, 0], // resources per second power, crystal, scrap, human
 		[2, 2], // size width, height
-		"Storage", "Increase all storage capacity.", 0, "#444"]
+		"Storage", "Increase all storage capacity.", 0, "#444",12]
 	],
 
 	purchase: function(player, buildingID) {
@@ -70,9 +70,9 @@ var shared = {
 			player.caps.push(10);
 			player.plus.push(0);
 		}
-		for (var i = 0; i < player.buildings.length; i++) {
-			var building = player.buildings[i];
-			var buildingDetails = shared.buildings[parseInt(building.id)];
+		for (var i = 0; i < player.b.length; i++) {
+			var building = player.b[i];
+			var buildingDetails = shared.buildings[(building.id|0)];
 			for (var e = 0; e < costNames.length; e++) {
 				if (building.power) {
 					player.caps[e] += buildingDetails[1][e];
@@ -104,7 +104,7 @@ var shared = {
 	},
 
 	down: function(map, x, y) {
-		if (y + 1 > 25) {
+		if (y + 1 > 24) {
 			return -1;
 		}
 		return map[x][y + 1];
@@ -118,7 +118,7 @@ var shared = {
 	},
 
 	right: function(map, x, y) {
-		if (x + 1 > 25) {
+		if (x + 1 > 24) {
 			return -1;
 		}
 		return map[x + 1][y];
@@ -143,7 +143,7 @@ var shared = {
 		}
 		for (var i = 0; i < structureList.length; i++) {
 			currentStructure = structureList[i];
-			if ((parseInt(currentStructure.id) !== 1 && parseInt(structure[5]) !== 1) || parseInt(structure[5]) === 1) {
+			if (((currentStructure.id|0) !== 1 && (structure[5]|0) !== 1) || (structure[5]|0) === 1) {
 				if (shared.isOverlapping(structure[0], structure[1], structure[2], structure[3], currentStructure.x, currentStructure.y, currentStructure.w, currentStructure.h)) {
 					return false;
 				}
@@ -154,7 +154,7 @@ var shared = {
 			for (var mapy = 0; mapy < structure[3]; mapy++) {
 				var coordx = mapx + structure[0];
 				var coordy = mapy + structure[1];
-				if (playerMap[coordx][coordy] !== 0) {
+				if (!playerMap[coordx] || playerMap[coordx][coordy] !== 0) {
 					return false;
 				}
 				if (structure[4] > 0) {
@@ -200,15 +200,15 @@ var shared = {
 		// var noPower = [];
 		for (var i = 0; i < buildingList.length; i++) {
 			var building = buildingList[i];
-			var nearbyBuildings = shared.findNearBuildings(player.buildings, building);
+			var nearbyBuildings = shared.findNearBuildings(player.b, building);
 			if (building.power === false) {}
 			for (var e = 0; e < nearbyBuildings.length; e++) {
-				if ((nearbyBuildings[e].power || parseInt(building.id) === 2) && building.power === false) {
+				if ((nearbyBuildings[e].power || (building.id|0) === 2) && building.power === false) {
 					building.power = true;
 					shared.isPowered(player, nearbyBuildings)
 				}
 			}
-			if (!nearbyBuildings.length && parseInt(building.id) === 2 && building.power === false) {
+			if (!nearbyBuildings.length && (building.id|0) === 2 && building.power === false) {
 				building.power = true;
 			}
 		}
@@ -216,14 +216,14 @@ var shared = {
 
 	handleOverlap: function(player) {
 		var keepList = [];
-		for (var i = 0; i < player.buildings.length; i++) {
-			var primaryBuilding = player.buildings[i];
+		for (var i = 0; i < player.b.length; i++) {
+			var primaryBuilding = player.b[i];
 			var overlapping = false;
-			for (var e = 0; e < player.buildings.length; e++) {
+			for (var e = 0; e < player.b.length; e++) {
 				if (i !== e) {
-					var nextBuilding = player.buildings[e];
+					var nextBuilding = player.b[e];
 					if (shared.isOverlapping(primaryBuilding.x, primaryBuilding.y, primaryBuilding.w, primaryBuilding.h, nextBuilding.x, nextBuilding.y, nextBuilding.w, nextBuilding.h)) {
-						if (parseInt(primaryBuilding.id) === 1) {
+						if ((primaryBuilding.id|0) === 1) {
 							overlapping = true;
 						}
 					}
@@ -233,7 +233,7 @@ var shared = {
 				keepList.push(primaryBuilding);
 			}
 		}
-		player.buildings = keepList;
+		player.b = keepList;
 	},
 
 	getCoords: function(building) {

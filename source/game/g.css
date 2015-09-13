@@ -16,35 +16,37 @@ body {
 	box-sizing: border-box;
 }
 
-#canvas {
+#canvas, #side {
 	position: absolute;
-	left:200px;
 	height:100%;
+}
+
+#canvas {
+	left:200px;
 	max-height:800px;
 	z-index:1;
+	background:#71A154;
 }
 
 #side {
-	position:absolute;
-	width:200px;
-	height:100%;
 	z-index:101;
+	width:200px;
 	background: #333;
 }
 
-#side ul {
+#sidebar {
 	position:absolute;
 	bottom:0;
 	left:0;
 }
 
-#side ul li {
+#sidebar li {
 	list-style-type:none;
 	cursor:pointer;
 	padding:5px;
 	padding-left:92px;
 }
-#side ul li:hover,#side ul li.active {
+#sidebar li:hover,#sidebar li.active {
 	background:#444;
 }
 
@@ -77,12 +79,16 @@ body {
 	background:#555;
 }
 
-#consbar li.disabled {
+#consbar .disabled {
 	cursor: not-allowed;
 	background:#444;
 }
 
-#ranks tbody, thead {
+#consbar th, #consbar td {
+	min-width:75px;
+}
+
+#ranks tbody, #ranks  thead {
 	display:block;
 }
 
@@ -92,55 +98,49 @@ body {
 }
 
 #ranks table {
-	max-height:100%;
-	margin: auto;
-}
-
-#ranks table {
 	width: 750px;
 	table-layout: fixed;
 	border-collapse: collapse;
+	max-height:100%;
+	margin: auto;
 }
-#ranks table th {
+#ranks  th {
 	text-decoration: underline;
 }
-#ranks table th,
-#ranks table td {
+#ranks  th,
+#ranks  td {
 	padding: 5px;
 	text-align: left;
 }
-#ranks table td:nth-child(1),
-#ranks table th:nth-child(1) {
-	min-width: 200px;
+#ranks  td:nth-child(1),
+#ranks  th:nth-child(1) {
+	min-width: 75px;
 }
-#ranks table td:nth-child(2),
-#ranks table th:nth-child(2) {
-	min-width: 200px;
+#ranks  td:nth-child(2),
+#ranks  th:nth-child(2) {
+	min-width: 350px;
 }
-#ranks table td:nth-child(3),
-#ranks table th:nth-child(3) {
-	width: 350px;
+#ranks  td:nth-child(3),
+#ranks  th:nth-child(3) {
+	width: 200px;
 }
-#ranks table thead {
+#ranks  td:nth-child(4),
+#ranks  th:nth-child(4) {
+	width: 125px;
+}
+#ranks  thead {
 	/*background-color: #333333;*/
 	/*color: #fdfdfd;*/
 }
-#ranks table thead tr {
+#ranks  thead tr {
 	display: block;
 	position: relative;
 }
-#ranks table tbody {
+#ranks  tbody {
 	display: block;
 	overflow: auto;
 	width: 100%;
 	height: 300px;
-}
-#ranks table tbody tr:nth-child(even) {
-	/*background-color: #dddddd;*/
-}
-
-.expensive {
-	background:#660000;
 }
 
 td, th {
@@ -154,18 +154,6 @@ tr:nth-child(odd) {
 	background: rgba(255,255,255,0.2);
 }
 
-#stats {
-
-	display:block;
-}
-#stats li {
-	display:block;
-}
-
-#stats li:last-child {
-
-}
-
 .visible {
 	display:block!important;
 }
@@ -176,18 +164,17 @@ tr:nth-child(odd) {
 	border:1px solid #AAA;
 }
 
-.cantbuy {
+.nobuy {
 	cursor:not-allowed;
+	background:#660000;
 }
 
-tr.player {
-	background:#000;
+.player {
+	background:#000!important;
 }
 
-th.sort-header::-moz-selection { background:transparent; }
-th.sort-header::selection      { background:transparent; }
-th.sort-header { cursor:pointer; }
-table th.sort-header:after {
+.sort-header { cursor:pointer; }
+.sort-header:after {
   content:'';
   float:right;
   margin-top:7px;
@@ -196,53 +183,24 @@ table th.sort-header:after {
   border-color:#000 transparent;
   visibility:hidden;
   }
-table th.sort-header:hover:after {
+.sort-header:hover:after {
   visibility:visible;
   }
-table th.sort-up:after,
-table th.sort-down:after,
-table th.sort-down:hover:after {
+.sort-up:after,
+.sort-down:after,
+.sort-down:hover:after {
   visibility:visible;
   opacity:0.6;
   }
-table th.sort-up:after {
+.sort-up:after {
   border-bottom:none;
   border-width:4px 4px 0;
   }
 
-/*  th.sort-header::-moz-selection { background:transparent; }
-th.sort-header::selection      { background:transparent; }
-th.sort-header { cursor:pointer; }
-table th.sort-header:after {
-	content:'';
-	float:right;
-	margin-top:7px;
-	border-width:4px 4px 0;
-	border-style:solid;
-	border-color:#000000 transparent;
-	visibility:hidden;
-}
-table th.sort-header:hover:after {
-	visibility:visible;
-}
-table th.sort-up:after,
-table th.sort-down:after,
-table th.sort-down:hover:after {
-	visibility:visible;
-	border-color:#000 transparent;
-	opacity:1;
-}
-table th.sort-up:after {
-	border-width:0 4px 4px;
-	border-bottom:none;
-}*/
-
-#ranks table th {
+#ranks th {
     background:#eee;
-    background:-webkit-gradient(linear, left top, left bottom, from(#eee), to(#ddd));
-    background:-moz-linear-gradient(top, #eee, #ddd);
     text-shadow:0 1px 0 #fff;
     font-weight:bold;
     vertical-align:bottom;
-    color:black;
+    color:#000;
     }

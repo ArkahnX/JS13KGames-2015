@@ -111,6 +111,7 @@
 	for (var attr in shared) {
 		window[attr] = shared[attr];
 	}
+	var sharedBuildings = buildings;
 	var socket = io(document.location.href);
 	var socketRequest = "sr";
 	var canvas, context;
@@ -128,15 +129,36 @@
 	var frame = 0;
 	var powerIMG = new Image();
 	powerIMG.src = "power.gif";
-	var treeIMG = new Image();
-	treeIMG.src = "tree.gif";
-	var getElementById = document.getElementById;
+	// var treeIMG = new Image();
+	// treeIMG.src = "tree2.png";
+	// var grassIMG = new Image();
+	// grassIMG.src = "grass.png";
 	var storage = window.localStorage;
 	var innerHTML = "innerHTML";
 	var classList = "classList";
 	var length = "length";
+	var crystalTiles = [];
+	var grassTiles = [];
+	var treeTiles = [];
+	var scrapTiles = [];
+	var tileIMGID = 0;
+	var elems = {};
+
+	function getElements(list) {
+		for (var i = 0; i < list.length; i++) {
+			if (list[i].children.length > 0) {
+				getElements(list[i].children);
+			}
+			if (list[i].id) {
+				elems[list[i].id] = list[i];
+			}
+		}
+	}
+
+
 
 	//login
+	getElements(document.body.children);
 	if (storage["userKey"]) {
 		// success
 		socket.emit(socketRequest, [
@@ -174,17 +196,19 @@
 
 	socket.on("$", function(data) {
 		data = JSON.parse(data);
-		var html = "<table id='ranked'><thead><tr><th class='sort-header'>Name</th><th class='sort-header'>Worth</th><th class='sort-header'>Buildings</th></tr></thead><tbody>";
+		var thStart = "<th class='sort-header'>";
+		var html = "<table id='ranked'><thead><tr>" + thStart + "Rank</th>" + thStart + "Name</th>" + thStart + "Worth</th>" + thStart + "Buildings</th></tr></thead><tbody>";
 		for (var i = 0; i < data[length]; i++) {
 			var isPlayer = "";
-			if (data[i].name === player.name && parseInt(data[i].buildings) === player.b[length]) {
+			if (data[i].name === player.name && (data[i].buildings | 0) === player.b[length]) {
 				isPlayer = "player";
 			}
-			html += "<tr class='" + isPlayer + "'><td>" + data[i].name + "</td><td>" + data[i].worth + "</td><td>" + data[i].buildings + "</td></tr>";
+			html += "<tr class='" + isPlayer + "'><td>" + (i + 1) + "</td><td>" + data[i].name + "</td><td>" + data[i].worth + "</td><td>" + data[i].buildings + "</td></tr>";
 		}
 		html += "</tbody></table>";
-		getElementById("ranks")[innerHTML] = html;
-		new Tablesort(getElementById('ranked'), {
+		elems.ranks[innerHTML] = html;
+		getElements(document.body.children);
+		new Tablesort(elems.ranked, {
 			descending: true
 		});
 	});
@@ -203,32 +227,156 @@
 		}
 		player = data;
 		player.time = Date.now();
-		getElementById("pn")[innerHTML] = player.name;
+		elems.pn[innerHTML] = player.name;
+	}
+
+	function makeImage(quantity, w, h, targetArray, fn) {
+		var tempCanvas = document.createElement("canvas");
+		tempCanvas.width = w;
+		tempCanvas.height = h;
+		var tempContext = tempCanvas.getContext("2d");
+		for (var e = 0; e < quantity; e++) {
+			tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+			var img = new Image();
+			var grd = tempContext.createLinearGradient(0, 0, tempCanvas.width, tempCanvas.height);
+			fn(tempContext, grd, e);
+			img.src = tempCanvas.toDataURL();
+			targetArray.push(img);
+		}
 	}
 
 	function gamestart() {
-		var consbar = getElementById("consbar");
-		canvas = getElementById("canvas");
+		var consbar = elems.consbar;
+		canvas = elems.canvas;
 		context = canvas.getContext("2d");
 		canvas.width = 25 * tilesize;
 		canvas.height = 25 * tilesize;
 		addEvent(canvas, "mousemove", moveHandler);
 		addEvent(canvas, "mousedown", clickHandler);
-		addEvent(canvas, "contextmenu", doNothing);
-		addEvent(getElementById("sidebar"), "click", sideMenuClick);
+		addEvent(canvas, "contextmenu", clickHandler);
+		addEvent(elems.sidebar, "click", sideMenuClick);
 		addEvent(window, "focus", focusHandler);
 		addEvent(window, "blur", stopRefresh);
 		var html = '<ul>';
-		for (var i = 1; i < buildings[length]; i++) {
-			html += '<li  class="structure" data-building="' + i + '">' + buildings[i][4] + '</li>'; // NAME
+		for (var i = 1; i < sharedBuildings[length]; i++) {
+			html += '<li  class="structure" data-building="' + i + '">' + sharedBuildings[i][4] + '</li>'; // NAME
 		}
 		html += "</ul>";
 		consbar[innerHTML] = html + consbar[innerHTML];
+		getElements(document.body.children);
 		var structures = document.querySelectorAll(".structure");
 		for (var i = 0; i < structures[length]; i++) {
 			addEvent(structures[i], "mouseover", structureHover);
 			addEvent(structures[i], "click", selectStructure);
 		}
+
+		makeImage(20, 32, 32, crystalTiles, function(tempContext, gradient) {
+			gradient.addColorStop(0, '#8ED6FF');
+			// dark blue
+			gradient.addColorStop(1, '#004CB3');
+			tempContext.fillStyle = gradient;
+			tempContext.lineWidth = 1;
+			var points = [random(0, 2), random(28, 32), random(0, 4), random(8, 20), random(12, 20), random(0, 8), random(28, 32), random(8, 20), random(28, 32), random(26, 32), random(12, 20), random(30, 32)];
+			tempContext.beginPath();
+			tempContext.moveTo(points[0], points[1]);
+			for (var i = 1; i < points.length / 2; i++) {
+				var xi = i * 2;
+				var yi = xi + 1;
+				tempContext.lineTo(points[xi], points[yi]);
+			}
+			tempContext.fill();
+			tempContext.strokeStyle = "black";
+			tempContext.stroke();
+			tempContext.closePath();
+
+			tempContext.beginPath();
+			tempContext.strokeStyle = '#004CB3';
+			tempContext.moveTo(points[8], points[9]);
+			tempContext.lineTo(points[10], points[11]);
+			tempContext.lineTo(points[0], points[1]);
+			// tempContext.lineTo(points[10], points[11]);
+			tempContext.lineWidth = 3;
+			tempContext.stroke();
+			tempContext.closePath();
+		});
+
+
+		makeImage(20, 32, 32, treeTiles, function(tempContext, gradient, index) {
+			tempContext.drawImage(crystalTiles[index], 0, 0);
+
+			var imageData = tempContext.getImageData(0, 0, 32, 32);
+			var data = imageData.data;
+
+			// for (var i = 0; i < data.length; i += 4) {
+			// 	// red
+			// 	data[i] = 255 - data[i];
+			// 	// green
+			// 	data[i + 1] = 255 - data[i + 1];
+			// 	// blue
+			// 	data[i + 2] = 255 - data[i + 2];
+			// }
+
+			for (var i = 0; i < data.length; i += 4) {
+				var brightness = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
+				// red
+				data[i] = brightness;
+				// green
+				data[i + 1] = brightness;
+				// blue
+				data[i + 2] = brightness;
+			}
+
+			// overwrite original image
+			tempContext.putImageData(imageData, 0, 0);
+		});
+
+		makeImage(20, 64, 64, scrapTiles, function(tempContext, gradient) {
+			gradient.addColorStop(0, '#ddd');
+			// dark blue
+			gradient.addColorStop(1, '#444');
+			tempContext.fillStyle = gradient;
+			tempContext.strokeStyle = "black";
+			for (var i = 1; i < random(3, 15); i++) {
+				tempContext.save();
+				var width = random(4, 12);
+				var height = random(4, 12);
+				tempContext.translate(width / 2 + 16 + random(2, 22), height / 2 + 16 + random(2, 22));
+				tempContext.rotate(random(0, 359) * (Math.PI / 180));
+				tempContext.beginPath();
+				tempContext.rect(0, 0, width, height);
+				tempContext.fill();
+				tempContext.stroke();
+				tempContext.closePath();
+				tempContext.restore();
+			}
+		});
+
+		makeImage(50, 8, 8, grassTiles, function(tempContext, gradient) {
+			var w = tempContext.canvas.width,
+				h = tempContext.canvas.height,
+				idata = tempContext.createImageData(w, h),
+				buffer32 = new Uint32Array(idata.data.buffer),
+				len = buffer32.length,
+				y = 0;
+
+			for (; y < len; y++) {
+				if (Math.random() < 0.1) {
+					buffer32[y] = 0xff4e946f;
+				} else if (Math.random() < 0.2) {
+					buffer32[y] = 0xff449a62;
+				} else if (Math.random() < 0.3) {
+					buffer32[y] = 0xff3a9359;
+				} else if (Math.random() < 0.4) {
+					buffer32[y] = 0xff2d9a4d;
+				} else if (Math.random() < 0.5) {
+					buffer32[y] = 0xff58967c;
+				} else if (Math.random() < 0.6) {
+					buffer32[y] = 0xff3ca55e;
+				}
+			}
+
+			tempContext.putImageData(idata, 0, 0);
+		});
 		gameLoop();
 	}
 
@@ -244,16 +392,20 @@
 		}
 		context.clearRect(0, 0, canvas.width, canvas.height)
 		drawMap();
-
+		drawBuildings();
 		// cursor color
 		strokeColor = "black";
+		context.fillStyle = 'rgba(0,0,0,0.5)';
 		var placeable = canPlace(player.map, player.b, tempBuilding)
 		if (placeable) {
 			strokeColor = "green";
+			context.fillStyle = 'rgba(0,255,0,0.5)';
 		} else if (placeable === null) {
 			strokeColor = "blue";
+			context.fillStyle = 'rgba(0,0,0,0.0)';
 		} else if (placeable === false) {
 			strokeColor = "red";
+			context.fillStyle = 'rgba(255,0,0,0.5)';
 		}
 
 		// draw cursor
@@ -267,74 +419,89 @@
 
 		// draw temp building
 		context.beginPath();
-		context.fillStyle = 'rgba(0,0,0,0.5)';
 		context.rect(mousex * tilesize, mousey * tilesize, tempBuilding[2] * tilesize, tempBuilding[3] * tilesize);
 		context.fill();
 
 		// update money
-		getElementById("pc")[innerHTML] = player.power;
-		getElementById("cc")[innerHTML] = player.crystal;
-		getElementById("sc")[innerHTML] = player.scrap;
-		getElementById("hc")[innerHTML] = player.human;
-		getElementById("pm")[innerHTML] = player.caps[0];
-		getElementById("cm")[innerHTML] = player.caps[1];
-		getElementById("sm")[innerHTML] = player.caps[2];
-		getElementById("hm")[innerHTML] = player.caps[3];
-		getElementById("pp")[innerHTML] = player.plus[0];
-		getElementById("cp")[innerHTML] = player.plus[1];
-		getElementById("sp")[innerHTML] = player.plus[2];
-		getElementById("hp")[innerHTML] = player.plus[3];
+		elems.pc[innerHTML] = player.power;
+		elems.cc[innerHTML] = player.crystal;
+		elems.sc[innerHTML] = player.scrap;
+		elems.hc[innerHTML] = player.human;
+		elems.pm[innerHTML] = player.caps[0];
+		elems.cm[innerHTML] = player.caps[1];
+		elems.sm[innerHTML] = player.caps[2];
+		elems.hm[innerHTML] = player.caps[3];
+		elems.pp[innerHTML] = player.plus[0];
+		elems.cp[innerHTML] = player.plus[1];
+		elems.sp[innerHTML] = player.plus[2];
+		elems.hp[innerHTML] = player.plus[3];
 		window.requestAnimationFrame(gameLoop);
 	}
 
+	function random(from, to) {
+		return Math.floor(Math.random() * (to - from + 1)) + from;
+	}
+
+	function shuffle(a, b, c, d) { //array,placeholder,placeholder,placeholder
+		c = a.length;
+		while (c) b = Math.random() * c-- | 0, d = a[c], a[c] = a[b], a[b] = d
+	}
+	var map = JSON.parse(storage["map"]);
+	var grassmap = [];
+	for (var i = 0; i < 50; i++) {
+		for (var e = 0; e < 50; e++) {
+			grassmap.push([i, e]);
+		}
+	}
+	shuffle(grassmap);
+
 	function drawMap() {
-		var map = JSON.parse(storage["map"]);
+		tileIMGID = 0;
+		// context.drawImage(grassTiles[tileIMGID], 0, 0, 32, 32);
 		var x, y, i, e;
+		for (x = 0; x < 50 * 50; x++) {
+			// for (y = 0; y < 50; y++) {
+			tileIMGID = tileIMGID % 50;
+			// context.drawImage(grassTiles[tileIMGID], x * tilesize, y * tilesize);
+			context.drawImage(grassTiles[tileIMGID], grassmap[x][0] * 16, grassmap[x][1] * 16, 16, 16);
+			tileIMGID++;
+			// }
+		}
+		tileIMGID = 0;
 		for (x = 0; x < 25; x++) {
 			for (y = 0; y < 25; y++) {
+				tileIMGID = tileIMGID % 20;
 				if (map[x][y] === 1) {
-					context.drawImage(treeIMG, x * tilesize, y * tilesize);
-				} else {
-					context.beginPath();
-					if (map[x][y] === 0) {
-						context.fillStyle = 'green';
-					}
-					if (map[x][y] === 1) {
-						context.fillStyle = 'black';
-					}
-					if (map[x][y] === 2) {
-						context.fillStyle = 'blue';
-					}
-					if (map[x][y] === 3) {
-						context.fillStyle = 'lightblue';
-					}
-					if (map[x][y] === 4) {
-						context.fillStyle = 'grey';
-					}
-					context.rect(x * tilesize, y * tilesize, tilesize, tilesize);
-					context.fill();
+					// context.drawImage(treeIMG, x * tilesize, y * tilesize, tilesize, tilesize);
+					context.drawImage(treeTiles[tileIMGID], x * tilesize, y * tilesize);
 				}
-				// context.closePath();
-				// for (i = 0; i < tileFunction[LENGTH]; i++) {
-
-				// tileFunction[i](map[x][y], obstacles[x][y]);
-				// context.drawImage(tile.image, centerSymmetrical(tile.x, tileSize), centerSymmetrical(tile.y, tileSize));
-				// }
+				if (map[x][y] === 2) {
+					context.drawImage(crystalTiles[tileIMGID], x * tilesize, y * tilesize);
+				}
+				if (map[x][y] === 4) {
+					context.drawImage(scrapTiles[tileIMGID], x * tilesize - 16, y * tilesize - 16);
+				}
+				tileIMGID++;
 			}
 		}
+
+	}
+
+	function drawBuildings() {
+		var contextMap = ["strokeStyle", "lineWidth", "beginPath", "fillStyle"];
 		for (var i = 0; i < player.b[length]; i++) {
 			var building = player.b[i];
-			if (parseInt(building.id) === 1) {
+			if ((building.id | 0) === 1) {
 				var nearbyBuildings = findNearBuildings(player.b, building);
 				var buildingCenterX = (building.x + (building.w / 2)) * tilesize;
 				var buildingCenterY = (building.y + (building.h / 2)) * tilesize;
 				for (var e = 0; e < nearbyBuildings[length]; e++) {
 					var nearBuildingCenterX = (nearbyBuildings[e].x + (nearbyBuildings[e].w / 2)) * tilesize;
 					var nearBuildingCenterY = (nearbyBuildings[e].y + (nearbyBuildings[e].h / 2)) * tilesize;
-					context.beginPath();
-					context.strokeStyle = "black";
+					context[contextMap[2]]();
+					context[contextMap[0]] = "black";
 					context.lineCap = 'square';
-					context.lineWidth = 5;
+					context[contextMap[1]] = 5;
 					context.moveTo(buildingCenterX, buildingCenterY);
 					context.lineTo(nearBuildingCenterX, nearBuildingCenterY);
 					context.stroke();
@@ -344,18 +511,28 @@
 		}
 		for (var i = 0; i < player.b[length]; i++) {
 			var building = player.b[i];
-			if (parseInt(building.id) !== 1) {
-				context.beginPath();
+			if ((building.id | 0) !== 1) {
+				context[contextMap[2]]();
 				context.strokeWidth = 4;
-				context.fillStyle = buildings[building.id][7]; // COLOR
+				context[contextMap[1]] = 4;
+				context[contextMap[3]] = sharedBuildings[building.id][7]; // COLOR
 				if (building.power) {
-					context.strokeStyle = "black";
+					context[contextMap[0]] = "black";
 				} else {
-					context.strokeStyle = "red";
+					context[contextMap[0]] = "red";
 				}
 				context.rect(building.x * tilesize, building.y * tilesize, building.w * tilesize, building.h * tilesize);
 				context.fill();
 				context.stroke();
+				context.textAlign = 'center';
+				context.textBaseline = 'middle';
+				context.font = 'bold ' + sharedBuildings[building.id][8] + 'pt Calibri';
+				context[contextMap[3]] = 'black';
+				context.fillText(sharedBuildings[building.id][4], building.x * tilesize + building.h / 2 * tilesize, building.y * tilesize + building.h / 2 * tilesize);
+				context[contextMap[1]] = 1;
+				// stroke color
+				context[contextMap[0]] = 'white';
+				context.strokeText(sharedBuildings[building.id][4], building.x * tilesize + building.h / 2 * tilesize, building.y * tilesize + building.h / 2 * tilesize);
 				// context.webkitImageSmoothingEnabled = false;
 				// context.mozImageSmoothingEnabled = false;
 				context.imageSmoothingEnabled = false; /// future
@@ -381,6 +558,18 @@
 		mousey = event.pageY - canvas.offsetTop;
 		mousex = modulus(mousex, tilesize * (canvas.clientHeight / 800));
 		mousey = modulus(mousey, tilesize * (canvas.clientHeight / 800));
+		if (mousex < 0) {
+			mousex = 0;
+		}
+		if (mousey < 0) {
+			mousey = 0;
+		}
+		if (mousex > 25) {
+			mousex = 25;
+		}
+		if (mousey > 25) {
+			mousey = 25;
+		}
 		tempBuilding[0] = mousex;
 		tempBuilding[1] = mousey;
 		if (continueReloading === false) {
@@ -391,13 +580,26 @@
 
 	function clickHandler(event) {
 		event.preventDefault();
-		if (event.button === 2) {
-			tempBuilding[length] = 0;
+		if (event.button === 1 && tempBuilding.length <= 2) {
+			for (var i = 0; i < player.b.length; i++) {
+				var building = player.b[i];
+				if (isOverlapping(mousex, mousey, 1, 1, building.x, building.y, building.w, building.h)) {
+					socket.emit(socketRequest, [
+						[storage["id"], storage["userKey"]], "s", [building.x, building.y]
+					]);
+				}
+			}
+			return true;
 		}
-		if (tempBuilding[length] > 0) {
+		if (event.button === 2 || (event.button === 1 && tempBuilding.length > 2)) {
+			tempBuilding[length] = 0;
+			return false;
+		}
+		if (tempBuilding[length] > 2) {
 			socket.emit(socketRequest, [
 				[storage["id"], storage["userKey"]], "p", tempBuilding]);
 			tempBuilding[length] = 0;
+			return false;
 		}
 		// selectedTower = null;
 		// if (isBuilding() && canBuild()) {
@@ -435,20 +637,20 @@
 	function sideMenuClick(event) {
 		event.preventDefault();
 		if (event.target.id === "cons") {
-			getElementById("score")[classList].remove("active");
-			getElementById("ranks")[classList].remove("visible");
+			elems.score[classList].remove("active");
+			elems.ranks[classList].remove("visible");
 			event.target[classList].toggle("active");
-			getElementById("consbar")[classList].toggle("visible");
+			elems.consbar[classList].toggle("visible");
 		}
 		if (event.target.id === "score") {
-			getElementById("cons")[classList].remove("active");
-			getElementById("consbar")[classList].remove("visible");
+			elems.cons[classList].remove("active");
+			elems.consbar[classList].remove("visible");
 			event.target[classList].toggle("active");
-			getElementById("ranks")[classList].toggle("visible");
-			if (getElementById("ranks")[classList].contains("visible")) {
+			elems.ranks[classList].toggle("visible");
+			if (elems.ranks[classList].contains("visible")) {
 				socket.emit(socketRequest, [
 					[storage["id"], storage["userKey"]], "$"]);
-				getElementById("ranks")[innerHTML] = "Loading...";
+				elems.ranks[innerHTML] = "Loading...";
 			}
 		}
 	}
@@ -459,21 +661,21 @@
 			lastTarget = event.target.dataset.building;
 			var buildingID = event.target.dataset.building;
 			wallet = getWallet(player);
-			var purchaseable = canBuy(wallet, buildings[buildingID][0]); // COST
-			getElementById("desc")[innerHTML] = buildings[buildingID][4]; // DESC
+			var purchaseable = canBuy(wallet, sharedBuildings[buildingID][0]); // COST
+			elems.desc[innerHTML] = sharedBuildings[buildingID][5]; // DESC
 			var expensive = false;
 			event.target[classList].remove("disabled");
 			for (var i = 0; i < costNames[length]; i++) {
-				var costElement = getElementById(costNames[i] + "-cost");
-				var capElement = getElementById(costNames[i] + "-cap");
-				var plusElement = getElementById(costNames[i] + "-plus");
-				costElement[innerHTML] = buildings[buildingID][0][i]; // COST
-				capElement[innerHTML] = buildings[buildingID][1][i]; // CAP
-				plusElement[innerHTML] = buildings[buildingID][2][i]; // PLUS
-				costElement[classList].remove("expensive");
-				if (buildings[buildingID][0][i] > wallet[i]) { // COST
+				var costElement = elems[costNames[i] + "-cost"];
+				var capElement = elems[costNames[i] + "-cap"];
+				var plusElement = elems[costNames[i] + "-plus"];
+				costElement[innerHTML] = sharedBuildings[buildingID][0][i]; // COST
+				capElement[innerHTML] = sharedBuildings[buildingID][1][i]; // CAP
+				plusElement[innerHTML] = sharedBuildings[buildingID][2][i]; // PLUS
+				costElement[classList].remove("nobuy");
+				if (sharedBuildings[buildingID][0][i] > wallet[i]) { // COST
 					expensive = true;
-					costElement[classList].add("expensive");
+					costElement[classList].add("nobuy");
 				}
 			}
 			if (expensive) {
@@ -486,9 +688,11 @@
 		event.preventDefault();
 		if (event.target.dataset.building) {
 			if (event.target[classList].contains("disabled") === false) {
-				var buildingID = parseInt(event.target.dataset.building);
-				if (canBuy(wallet, buildings[buildingID][0])) { // COST
-					tempBuilding = [mousex, mousey, buildings[buildingID][3][0], buildings[buildingID][3][1], buildings[buildingID][6], buildingID]; // SIZE
+				var buildingID = (event.target.dataset.building | 0);
+				if (canBuy(wallet, sharedBuildings[buildingID][0])) { // COST
+					tempBuilding = [mousex, mousey, sharedBuildings[buildingID][3][0], sharedBuildings[buildingID][3][1], sharedBuildings[buildingID][6], buildingID]; // SIZE
+					elems.cons[classList].remove("active");
+					elems.consbar[classList].remove("visible");
 				}
 			}
 		}

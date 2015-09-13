@@ -1,13 +1,13 @@
 var io = require('sandbox-io');
 var path = require("path");
 var shared = require("./shared.js");
+var saveQ = {};
 if (!load("userID")) {
 	save("userID", 0);
 }
 var batchedWrites = [];
 var firstNames = "Andrew,Ivan,Benjamin,Bernard,Julian,Hilda,Cordelia,Martha,Amy,Emilie".split(",");
 var lastNames = "Copeland,Burgess,Mendez,Davidson,Barnes,Williamson,Watts,Gregory,Young,Freeman".split(",");
-// var 25 = 25;
 var userID = load("userID");
 var tilePriorities = [0.94 * 25 * 25, 0.03 * 25 * 25, 0.01 * 25 * 25, 0.00 * 25 * 25, 0.02 * 25 * 25]; // ground, obstacle, crystal, stream, scrap
 var tileFunctions = [function(map, x, y) {
@@ -19,12 +19,16 @@ var tileFunctions = [function(map, x, y) {
 },
 crystal, stream, scrap];
 
+
 function send(target, name, data) {
 	target.emit(name, JSON.stringify(data));
 }
 
 function isSame(oldUser, newUser) {
 	if (!oldUser) {
+		return false;
+	}
+	if(JSON.stringify(oldUser) !== JSON.stringify(newUser)) {
 		return false;
 	}
 	for (var attr in newUser) {
@@ -55,15 +59,22 @@ function save(name, value) {
 	if (name === "userID") {
 		db(name, newValue);
 	}
-	if (name !== "userID" && !isSame(load(name), value)) {
-		db(name, newValue);
+	if (name !== "userID" && !isSame(load(name,true),value)) {
+		saveQ[name] = {
+			v: value,
+			t: Date.now()
+		};
+		// db(name, newValue);
 	}
 }
 
-function load(name) {
+function load(name, verify) {
+	if (saveQ[name] && !verify) {
+		return saveQ[name].v;
+	}
 	var result = db(name);
 	if (typeof result === "string") {
-		return JSON.parse(db(name));
+		return JSON.parse(result);
 	}
 	return result;
 }
@@ -156,7 +167,7 @@ io.on('connection', function(socket) {
 			createUser(socket);
 		}
 		if (typeof data === "object") {
-			var userIndex = parseInt(data[0][0]);
+			var userIndex = (data[0][0] | 0);
 			var userKey = JSON.parse(data[0][1]);
 			var user = load(userIndex);
 			if (!user || user.userKey !== userKey) {
@@ -209,6 +220,9 @@ io.on('connection', function(socket) {
 						save(i, user);
 					}
 				}
+				datalist.sort(function(a, b) {
+					return (b.worth | 0) - (a.worth | 0);
+				});
 				send(socket, "$", datalist);
 			}
 			if (data[1] === "u") {
@@ -218,16 +232,26 @@ io.on('connection', function(socket) {
 				send(socket, "u", user);
 				save(userIndex, user);
 			}
+			if (data[1] === "s") {
+				for (var i = 0; i < user.b.length; i++) {
+					if (user.b[i].x === data[2][0] && user.b[i].y === data[2][1]) {
+						user.b.splice(i, 1);
+						i = user.b.length;
+					}
+				}
+				send(socket, "u", user);
+				save(userIndex, user);
+			}
 			if (data[1] === "p") {
 				var placeable = shared.canPlace(user.map, user.b, data[2]);
 				var buyable = shared.canBuy(shared.getWallet(user, true), shared.buildings[data[2][5]][0]);
 				if (placeable && buyable) {
 					user.b.push({
-						x: parseInt(data[2][0]),
-						y: parseInt(data[2][1]),
-						w: parseInt(data[2][2]),
-						h: parseInt(data[2][3]),
-						id: parseInt(data[2][5]),
+						x: (data[2][0] | 0),
+						y: (data[2][1] | 0),
+						w: (data[2][2] | 0),
+						h: (data[2][3] | 0),
+						id: (data[2][5] | 0),
 						power: false,
 						time: Date.now()
 					});
@@ -279,11 +303,16 @@ function createUser(socket) {
 	save("userID", ++userID);
 }
 
-// setInterval(function() {
-// 	if (batchedWrites.length) {
-// 		for (var i = 0; i < batchedWrites.length; i++) {
-// 			var user =
-// 		}
-// 		batchedWrites.length = 0;
-// 	}
-// }, 1000 * 30);
+var runtime = 0;
+
+setInterval(function() {
+	runtime++;
+	for (var attr in saveQ) {
+		if (Date.now() - saveQ[attr].t > 1000 * 30 || runtime > 10) {
+			db(attr, JSON.stringify(saveQ[attr].v));
+			delete saveQ[attr];
+		} else {
+		}
+	}
+	runtime = runtime % 10;
+}, 1000 * 30);

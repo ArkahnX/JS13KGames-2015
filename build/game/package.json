@@ -1,6 +1,1 @@
-{
-  "name": "arms-race",
-  "main": "server.js",
-  "author": "Christopher Hall <Biomech.ArkahnX@gmail.com>",
-  "license": "AGPLv3"
-}
+{"name":"simple-construction","main":"server.js","author":"Christopher Hall <Biomech.ArkahnX@gmail.com>","license":"MIT"}
